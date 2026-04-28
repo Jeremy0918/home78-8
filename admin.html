@@ -392,6 +392,15 @@ function setDate(dateStr, status) {
   var currentlyOpen = isDateOpen(dateStr);
   if (status === '開放' && currentlyOpen) return;
   if (status === '關閉' && !currentlyOpen) return;
+  if (status === '關閉') {
+    var d = new Date(dateStr + 'T00:00:00');
+    var dayNames = ['日','一','二','三','四','五','六'];
+    var label = (d.getMonth()+1) + '/' + d.getDate() + '（週' + dayNames[d.getDay()] + '）';
+    showConfirm('確定要關閉 ' + label + ' 嗎？\n關閉後前台無法訂購', function() {
+      doToggleDate(dateStr, '關閉');
+    });
+    return;
+  }
   doToggleDate(dateStr, status);
 }
 
@@ -1115,21 +1124,4 @@ function loadAll() {
           closedDates[d] = true;
         }
       }
-      renderScheduleControl();
-
-      // 訂單
-      rawOrders = data.orders || [];
-      processOrders(rawOrders);
-      renderChart();
-    })
-    .catch(function(err) {
-      console.error('[admin] loadAll 失敗:', err);
-      renderScheduleControl();
-      document.getElementById('order-list').innerHTML = '<div class="empty">載入失敗，請點重新整理</div>';
-    });
-}
-
-// 啟動
-loadAll();
-</script>
-</b
+      renderScheduleCont
