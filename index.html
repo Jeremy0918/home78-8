@@ -36,6 +36,9 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; b
 .qty-btn:last-child { border-radius: 0 8px 8px 0; }
 .qty-btn:active { background: #f0f0f0; }
 .qty-btn.disabled { opacity: 0.3; pointer-events: none; }
+.soldout-tag { display: inline-block; padding: 4px 10px; background: #f5f5f0; color: #aaa; font-size: 13px; font-weight: 600; border-radius: 8px; }
+.menu-item.is-soldout .item-name, .menu-item.is-soldout .item-price { color: #ccc; text-decoration: line-through; }
+.menu-item.is-soldout .item-img { opacity: 0.35; }
 .qty-display { width: 40px; height: 36px; border-top: 1.5px solid #ddd; border-bottom: 1.5px solid #ddd; display: flex; align-items: center; justify-content: center; font-size: 16px; font-weight: 600; background: #fafafa; }
 .note-input { width: 100%; padding: 12px; border: 1.5px solid #ddd; border-radius: 10px; font-size: 14px; outline: none; resize: none; height: 60px; }
 .note-input:focus { border-color: #1D9E75; }
@@ -177,6 +180,7 @@ var CONFIG = {
 
 var quantities = new Array(CONFIG.menu.length).fill(0);
 var selectedDate = '';
+var soldoutItems = {};
 
 var allFloors = ['B2','B1','1F','2F','3F','4F','5F','6F','7F','8F','9F','10F','11F','12F','13F','14F'];
 var floors = {
@@ -252,10 +256,15 @@ function checkAndRender() {
     .then(function(data) {
       var schedule = data.schedule || [];
       var closed = false;
+      soldoutItems = {};
       for (var i = 0; i < schedule.length; i++) {
-        if (normDate(schedule[i].date) === target && schedule[i].status === '關閉') {
+        var sd = normDate(schedule[i].date);
+        var st = String(schedule[i].status || '');
+        if (sd === target && st === '關閉') {
           closed = true;
-          break;
+        }
+        if (sd === target && st.indexOf('完售:') === 0) {
+          soldoutItems[st.substring(3)] = true;
         }
       }
       if (closed) {
@@ -311,24 +320,36 @@ function renderMenu() {
   var html = '';
   for (var i = 0; i < CONFIG.menu.length; i++) {
     var item = CONFIG.menu[i];
+    var isSoldout = soldoutItems[item.name] === true;
     var imgHtml = item.img ? '<img class="item-img" src="' + item.img + '" alt="' + item.name + '" onerror="this.style.display=\'none\'" />' : '';
-    html += '<div class="menu-item">' +
-      imgHtml +
-      '<div class="item-info"><div class="item-name">' + item.name + '</div>' +
-      '<div class="item-price">$' + item.price + '</div></div>' +
-      '<div class="qty-control">' +
-        '<div class="qty-btn' + (quantities[i]===0?' disabled':'') + '" onclick="changeQty(' + i + ',-1)">−</div>' +
-        '<div class="qty-display" id="qty-' + i + '">' + quantities[i] + '</div>' +
-        '<div class="qty-btn" onclick="changeQty(' + i + ',1)">+</div>' +
-      '</div></div>';
+    if (isSoldout) {
+      if (quantities[i] > 0) quantities[i] = 0;
+      html += '<div class="menu-item is-soldout">' +
+        imgHtml +
+        '<div class="item-info"><div class="item-name">' + item.name + '</div>' +
+        '<div class="item-price">$' + item.price + '</div></div>' +
+        '<div class="soldout-tag">完售</div></div>';
+    } else {
+      html += '<div class="menu-item">' +
+        imgHtml +
+        '<div class="item-info"><div class="item-name">' + item.name + '</div>' +
+        '<div class="item-price">$' + item.price + '</div></div>' +
+        '<div class="qty-control">' +
+          '<div class="qty-btn' + (quantities[i]===0?' disabled':'') + '" onclick="changeQty(' + i + ',-1)">−</div>' +
+          '<div class="qty-display" id="qty-' + i + '">' + quantities[i] + '</div>' +
+          '<div class="qty-btn" onclick="changeQty(' + i + ',1)">+</div>' +
+        '</div></div>';
+    }
   }
   el.innerHTML = html;
   updateTotal();
 }
 
 function changeQty(idx, delta) {
+  if (soldoutItems[CONFIG.menu[idx].name]) return;
   quantities[idx] = Math.max(0, quantities[idx] + delta);
-  document.getElementById('qty-' + idx).textContent = quantities[idx];
+  var qtyEl = document.getElementById('qty-' + idx);
+  if (qtyEl) qtyEl.textContent = quantities[idx];
   var btns = document.querySelectorAll('.menu-item');
   var minusBtn = btns[idx] && btns[idx].querySelector('.qty-btn');
   if (minusBtn) {
