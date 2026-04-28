@@ -116,9 +116,11 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; b
 .soldout-btn:active { transform:scale(0.94); }
 .soldout-btn.on-sale { background:#E1F5EE; color:#0F6E56; border-color:#1D9E75; }
 .soldout-btn.is-soldout { background:#FBEAF0; color:#c44; border-color:#c44; }
+#print-area { display: none; }
 @media print {
-  body > *:not(#print-area) { display: none !important; }
-  #print-area { display: block !important; position: absolute; left: 0; top: 0; width: 72mm; font-family: monospace, sans-serif; font-size: 12px; line-height: 1.4; color: #000; padding: 2mm; }
+  html, body { margin: 0 !important; padding: 0 !important; overflow: visible !important; }
+  .header, .tab-bar, .content, .container, .modal-overlay, .confirm-overlay, #login-gate, #edit-modal, #confirm-dialog, canvas { display: none !important; visibility: hidden !important; height: 0 !important; overflow: hidden !important; }
+  #print-area { display: block !important; position: fixed !important; left: 0; top: 0; z-index: 999999; width: 72mm; font-family: monospace, sans-serif; font-size: 12px; line-height: 1.4; color: #000; background: #fff; padding: 2mm; }
   #print-area .pr-header { text-align: center; font-size: 14px; font-weight: bold; border-bottom: 1px dashed #000; padding-bottom: 4px; margin-bottom: 4px; }
   #print-area .pr-date { text-align: center; font-size: 11px; margin-bottom: 6px; }
   #print-area .pr-loc { font-weight: bold; font-size: 13px; border-bottom: 1px solid #000; margin-top: 6px; padding-bottom: 2px; }
