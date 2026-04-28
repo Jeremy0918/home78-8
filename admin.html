@@ -55,7 +55,6 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; b
 .time-note { font-size: 12px; color: #aaa; text-align: center; margin-top: 8px; }
 .copy-btn { padding: 4px 10px; font-size: 12px; background: #f0f0f0; border: 1px solid #ddd; border-radius: 6px; cursor: pointer; }
 .copy-btn:active { background: #ddd; }
-/* 圖表 */
 .chart-range-btn { padding:5px 14px; font-size:13px; background:#f0f0f0; border:1px solid #ddd; border-radius:16px; cursor:pointer; color:#888; }
 .chart-range-btn.active { background:#1D9E75; color:#fff; border-color:#1D9E75; }
 .chart-bar-wrap { display:flex; flex-direction:column; align-items:center; flex:1; min-width:28px; }
@@ -67,7 +66,6 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; b
 .summary-card { flex:1; min-width:90px; background:#f9f9f6; border-radius:10px; padding:10px 12px; text-align:center; }
 .summary-card .num { font-size:20px; font-weight:700; color:#333; }
 .summary-card .lbl { font-size:11px; color:#999; margin-top:2px; }
-/* 排程管理 */
 .sched-chips { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 8px; }
 .sched-chip { padding: 10px 14px; border-radius: 10px; font-size: 14px; cursor: pointer; transition: all 0.2s; text-align: center; min-width: 80px; border: 1.5px solid transparent; user-select: none; }
 .sched-chip.open { background: #E1F5EE; color: #0F6E56; border-color: #1D9E75; }
@@ -77,17 +75,14 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; b
 .gen-btn:active { background: #0F6E56; }
 .gen-btn.danger { background: #dc3545; }
 .gen-btn.danger:active { background: #a71d2a; }
-/* 日期篩選 tabs */
 .date-tabs { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 16px; }
 .date-tab { padding: 8px 14px; border-radius: 8px; font-size: 13px; cursor: pointer; background: #f0f0f0; color: #666; border: 1.5px solid transparent; transition: all 0.2s; }
 .date-tab.active { background: #1D9E75; color: #fff; border-color: #1D9E75; }
-/* 訂單操作按鈕 */
 .order-actions { display: flex; gap: 6px; margin-top: 6px; }
 .act-btn { padding: 4px 10px; font-size: 12px; border-radius: 6px; border: 1px solid #ddd; cursor: pointer; background: #f8f8f6; color: #555; transition: all 0.15s; }
 .act-btn:active { transform: scale(0.94); }
 .act-btn.edit { color: #1D9E75; border-color: #1D9E75; }
 .act-btn.del { color: #dc3545; border-color: #dc3545; }
-/* 編輯 modal */
 .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.45); display: flex; align-items: center; justify-content: center; z-index: 1000; }
 .modal { background: #fff; border-radius: 14px; width: 92%; max-width: 480px; max-height: 90vh; overflow-y: auto; padding: 20px; }
 .modal h2 { font-size: 17px; font-weight: 600; margin-bottom: 14px; }
@@ -105,7 +100,6 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; b
 .btn-save:active { background: #0F6E56; }
 .btn-cancel { background: #f0f0f0; color: #555; }
 .btn-cancel:active { background: #ddd; }
-/* 確認對話框 */
 .confirm-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.45); display: flex; align-items: center; justify-content: center; z-index: 2000; }
 .confirm-box { background: #fff; border-radius: 14px; width: 85%; max-width: 340px; padding: 24px 20px 16px; text-align: center; }
 .confirm-box .msg { font-size: 15px; line-height: 1.6; margin-bottom: 18px; white-space: pre-line; }
@@ -117,8 +111,6 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; b
 </style>
 </head>
 <body>
-
-<!-- 密碼鎖 -->
 <div id="login-gate" style="position:fixed;inset:0;background:#fafaf7;z-index:9999;display:flex;align-items:center;justify-content:center;">
   <div style="text-align:center;padding:20px;">
     <h2 style="color:#333;margin-bottom:6px;">Home 78-2 後台</h2>
@@ -129,59 +121,31 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; b
     <div id="login-err" style="color:#c44;font-size:13px;margin-top:10px;display:none;">密碼錯誤</div>
   </div>
 </div>
-
 <div class="header">
   <h1>Home 78-2 後台</h1>
   <button class="refresh-btn" onclick="refreshAll()">重新整理</button>
 </div>
-
 <div class="container">
-  <!-- 排程管理 -->
   <div class="section">
     <div class="section-title">排程管理</div>
     <div style="font-size:12px; color:#888; margin-bottom:10px;">每天晚上 7 點自動開放隔天，點擊可手動關閉</div>
-    <div id="sched-control">
-      <div style="color:#aaa; font-size:13px;">載入中...</div>
-    </div>
+    <div id="sched-control"><div style="color:#aaa; font-size:13px;">載入中...</div></div>
   </div>
-
-  <!-- 日期篩選 -->
   <div class="date-tabs" id="date-tabs"></div>
-
   <div class="stats">
-    <div class="stat-card">
-      <div class="stat-label">總便當數</div>
-      <div class="stat-value" id="total-qty">0</div>
-    </div>
-    <div class="stat-card">
-      <div class="stat-label">總金額</div>
-      <div class="stat-value green" id="total-amount">$0</div>
-    </div>
-    <div class="stat-card">
-      <div class="stat-label">未收款</div>
-      <div class="stat-value orange" id="total-unpaid">$0</div>
-    </div>
+    <div class="stat-card"><div class="stat-label">總便當數</div><div class="stat-value" id="total-qty">0</div></div>
+    <div class="stat-card"><div class="stat-label">總金額</div><div class="stat-value green" id="total-amount">$0</div></div>
+    <div class="stat-card"><div class="stat-label">未收款</div><div class="stat-value orange" id="total-unpaid">$0</div></div>
   </div>
-
   <div id="pay-summary-section"></div>
-
   <div class="section">
-    <div class="section-title">
-      各品項統計
-      <button class="copy-btn" onclick="copyItemSummary()">複製文字</button>
-    </div>
+    <div class="section-title">各品項統計<button class="copy-btn" onclick="copyItemSummary()">複製文字</button></div>
     <div id="item-summary"></div>
   </div>
-
   <div class="section">
-    <div class="section-title">
-      <span>訂單明細（<span id="order-count">0</span> 筆）</span>
-      <button class="copy-btn" onclick="copyOrderList()">複製文字</button>
-    </div>
+    <div class="section-title"><span>訂單明細（<span id="order-count">0</span> 筆）</span><button class="copy-btn" onclick="copyOrderList()">複製文字</button></div>
     <div id="order-list"></div>
   </div>
-
-  <!-- 營業額圖表 -->
   <div class="section">
     <div class="section-title">營業額統計</div>
     <div style="display:flex;gap:8px;margin-bottom:12px;flex-wrap:wrap;">
@@ -190,15 +154,10 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; b
       <button class="chart-range-btn active" onclick="setChartRange(30)">30 天</button>
     </div>
     <div id="chart-summary" style="display:flex;gap:10px;margin-bottom:14px;flex-wrap:wrap;"></div>
-    <div id="chart-area" style="overflow-x:auto;">
-      <div style="color:#aaa;font-size:13px;">載入中...</div>
-    </div>
+    <div id="chart-area" style="overflow-x:auto;"><div style="color:#aaa;font-size:13px;">載入中...</div></div>
   </div>
-
   <div class="time-note" id="last-update"></div>
 </div>
-
-<!-- 自訂確認對話框 -->
 <div class="confirm-overlay" id="confirm-dialog" style="display:none;">
   <div class="confirm-box">
     <div class="msg" id="confirm-msg"></div>
@@ -208,920 +167,68 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; b
     </div>
   </div>
 </div>
-
-<!-- 編輯訂單 Modal -->
 <div class="modal-overlay" id="edit-modal" style="display:none;" onclick="if(event.target===this)closeEditModal()">
   <div class="modal">
     <h2 id="edit-modal-title">編輯訂單</h2>
-    <label>姓名</label>
-    <input id="edit-name" placeholder="客人姓名">
-    <label>電話</label>
-    <input id="edit-phone" placeholder="電話">
-    <label>百貨</label>
-    <input id="edit-location" placeholder="例：新光三越台中中港店">
-    <label>樓層</label>
-    <input id="edit-floor" placeholder="例：3F">
-    <label>櫃位</label>
-    <input id="edit-store" placeholder="例：UNIQLO">
-    <label>品項</label>
-    <div id="edit-items"></div>
-    <label>備註</label>
-    <textarea id="edit-note" rows="2" placeholder="備註"></textarea>
+    <label>姓名</label><input id="edit-name" placeholder="客人姓名">
+    <label>電話</label><input id="edit-phone" placeholder="電話">
+    <label>百貨</label><input id="edit-location" placeholder="例：新光三越台中中港店">
+    <label>樓層</label><input id="edit-floor" placeholder="例：3F">
+    <label>櫃位</label><input id="edit-store" placeholder="例：UNIQLO">
+    <label>品項</label><div id="edit-items"></div>
+    <label>備註</label><textarea id="edit-note" rows="2" placeholder="備註"></textarea>
     <div class="modal-btns">
       <button class="btn-cancel" onclick="closeEditModal()">取消</button>
       <button class="btn-save" onclick="saveOrder()">儲存</button>
     </div>
   </div>
 </div>
-
 <script>
-// ============================================================
-// ★★★ 設定區 — 貼上你的 Google Apps Script 網址 ★★★
-// ============================================================
-var CONFIG = {
-  apiUrl: 'https://script.google.com/macros/s/AKfycbx9dMjOM0Gaiokbq-GCM8wvov8nKY_B4rEcElpAH7dZlfLjjiFzVhBLtAoSEyJNLnXH/exec',
-  password: 'home782'  // ← 改成你要的密碼
-};
-
-// 密碼驗證（記住登入狀態，關分頁就要重新輸入）
-function doLogin() {
-  var pw = document.getElementById('login-pw').value;
-  if (pw === CONFIG.password) {
-    document.getElementById('login-gate').style.display = 'none';
-    sessionStorage.setItem('admin_auth', '1');
-  } else {
-    document.getElementById('login-err').style.display = 'block';
-    document.getElementById('login-pw').value = '';
-    document.getElementById('login-pw').focus();
-  }
-}
-// 已登入過就跳過
-if (sessionStorage.getItem('admin_auth') === '1') {
-  document.getElementById('login-gate').style.display = 'none';
-}
-// ============================================================
-
-var allOrders = [];
-var rawOrders = [];
-var closedDates = {}; // { '2026-04-29': true } 代表被手動關閉
-var selectedViewDate = '';
-var OPEN_HOUR = 19;   // 晚上 7 點開放隔天
-var CUTOFF_HOUR = 16; // 下午 4 點截止當天
-var REST_DAYS = [1, 2]; // 店休日（0=日,1=一,2=二）
-
-// ====== 排程管理 ======
-
-function getToday() { return formatDate(new Date()); }
-function getTomorrow() {
-  var d = new Date();
-  d.setDate(d.getDate() + 1);
-  return formatDate(d);
-}
-function isDateOpen(dateStr) { return !closedDates[dateStr]; }
-function isRestDay(dateStr) {
-  var d = new Date(dateStr + 'T00:00:00');
-  return REST_DAYS.indexOf(d.getDay()) >= 0;
-}
-
-function fetchSchedule(cb) {
-  if (CONFIG.apiUrl === 'DEMO_MODE') {
-    closedDates = {};
-    renderScheduleControl();
-    if (cb) cb();
-    return;
-  }
-
-  fetch(CONFIG.apiUrl + '?action=getSchedule')
-    .then(function(r) { return r.json(); })
-    .then(function(data) {
-      closedDates = {};
-      var list = data.schedule || [];
-      for (var i = 0; i < list.length; i++) {
-        var d = normDate(list[i].date);
-        if (d && list[i].status === '關閉') {
-          closedDates[d] = true;
-        }
-      }
-      renderScheduleControl();
-      if (cb) cb();
-    })
-    .catch(function() {
-      closedDates = {};
-      renderScheduleControl();
-      if (cb) cb();
-    });
-}
-
-function renderScheduleControl() {
-  var now = new Date();
-  var hour = now.getHours();
-  var today = getToday();
-  var tomorrow = getTomorrow();
-  var dayNames = ['日','一','二','三','四','五','六'];
-
-  function dateLabel(ds) {
-    var d = new Date(ds + 'T00:00:00');
-    return (d.getMonth()+1) + '/' + d.getDate() + '（週' + dayNames[d.getDay()] + '）';
-  }
-
-  var html = '';
-
-  // 今天
-  var todayRest = isRestDay(today);
-  var todayOpen = !todayRest && isDateOpen(today);
-  var todayTag = '';
-  if (todayRest) todayTag = '<span style="color:#c44;font-size:12px;margin-left:6px;">店休</span>';
-  else if (!todayOpen) todayTag = '<span style="color:#c44;font-size:12px;margin-left:6px;">已完售</span>';
-  else if (hour < CUTOFF_HOUR) todayTag = '<span style="color:#1D9E75;font-size:12px;margin-left:6px;">● 客人訂購中</span>';
-  else if (hour < OPEN_HOUR) todayTag = '<span style="color:#888;font-size:12px;margin-left:6px;">已截止</span>';
-  else todayTag = '<span style="color:#888;font-size:12px;margin-left:6px;">今日結束</span>';
-
-  html += '<div style="display:flex;align-items:center;justify-content:space-between;padding:12px;background:' + (todayRest ? '#fafafa' : todayOpen ? '#E1F5EE' : '#f5f5f0') + ';border-radius:10px;margin-bottom:8px;">';
-  html += '<div><span style="font-weight:600;font-size:14px;">今天 ' + dateLabel(today) + '</span>' + todayTag + '</div>';
-  if (!todayRest) {
-    html += '<div style="display:flex;gap:6px;">';
-    html += '<div class="sched-chip ' + (todayOpen ? 'open' : '') + '" onclick="setDate(\'' + today + '\',\'開放\')" style="min-width:52px;margin:0;' + (todayOpen ? 'font-weight:700;' : 'background:#f0f0f0;color:#aaa;border-color:#ddd;') + '">開放</div>';
-    html += '<div class="sched-chip ' + (!todayOpen ? 'closed' : '') + '" onclick="setDate(\'' + today + '\',\'關閉\')" style="min-width:52px;margin:0;' + (!todayOpen ? 'font-weight:700;background:#FBEAF0;color:#c44;border-color:#c44;' : 'background:#f0f0f0;color:#aaa;border-color:#ddd;') + '">關閉</div>';
-    html += '</div>';
-  }
-  html += '</div>';
-
-  // 明天
-  var tmrRest = isRestDay(tomorrow);
-  var tmrOpen = !tmrRest && isDateOpen(tomorrow);
-  var tmrTag = '';
-  if (tmrRest) tmrTag = '<span style="color:#c44;font-size:12px;margin-left:6px;">店休</span>';
-  else if (!tmrOpen) tmrTag = '<span style="color:#c44;font-size:12px;margin-left:6px;">已完售</span>';
-  else if (hour >= OPEN_HOUR) tmrTag = '<span style="color:#1D9E75;font-size:12px;margin-left:6px;">● 客人訂購中</span>';
-  else tmrTag = '<span style="color:#888;font-size:12px;margin-left:6px;">晚上 7 點開放</span>';
-
-  html += '<div style="display:flex;align-items:center;justify-content:space-between;padding:12px;background:' + (tmrRest ? '#fafafa' : tmrOpen ? '#E1F5EE' : '#f5f5f0') + ';border-radius:10px;">';
-  html += '<div><span style="font-weight:600;font-size:14px;">明天 ' + dateLabel(tomorrow) + '</span>' + tmrTag + '</div>';
-  if (!tmrRest) {
-    html += '<div style="display:flex;gap:6px;">';
-    html += '<div class="sched-chip ' + (tmrOpen ? 'open' : '') + '" onclick="setDate(\'' + tomorrow + '\',\'開放\')" style="min-width:52px;margin:0;' + (tmrOpen ? 'font-weight:700;' : 'background:#f0f0f0;color:#aaa;border-color:#ddd;') + '">開放</div>';
-    html += '<div class="sched-chip ' + (!tmrOpen ? 'closed' : '') + '" onclick="setDate(\'' + tomorrow + '\',\'關閉\')" style="min-width:52px;margin:0;' + (!tmrOpen ? 'font-weight:700;background:#FBEAF0;color:#c44;border-color:#c44;' : 'background:#f0f0f0;color:#aaa;border-color:#ddd;') + '">關閉</div>';
-    html += '</div>';
-  }
-  html += '</div>';
-
-  document.getElementById('sched-control').innerHTML = html;
-  renderDateTabs();
-}
-
-function toggleDate(dateStr) {
-  var currentlyOpen = isDateOpen(dateStr);
-  if (currentlyOpen) {
-    var d = new Date(dateStr + 'T00:00:00');
-    var dayNames = ['日','一','二','三','四','五','六'];
-    var label = (d.getMonth()+1) + '/' + d.getDate() + '（週' + dayNames[d.getDay()] + '）';
-    showConfirm('確定要關閉 ' + label + ' 嗎？\n關閉後前台無法訂購', function() {
-      doToggleDate(dateStr, '關閉');
-    });
-  } else {
-    doToggleDate(dateStr, '開放');
-  }
-}
-
-function toggleItemBreakdown() {
-  var el = document.getElementById('item-breakdown');
-  if (el) el.style.display = el.style.display === 'none' ? 'block' : 'none';
-}
-
-function setDate(dateStr, status) {
-  var currentlyOpen = isDateOpen(dateStr);
-  if (status === '開放' && currentlyOpen) return;
-  if (status === '關閉' && !currentlyOpen) return;
-  if (status === '關閉') {
-    var d = new Date(dateStr + 'T00:00:00');
-    var dayNames = ['日','一','二','三','四','五','六'];
-    var label = (d.getMonth()+1) + '/' + d.getDate() + '（週' + dayNames[d.getDay()] + '）';
-    showConfirm('確定要關閉 ' + label + ' 嗎？\n關閉後前台無法訂購', function() {
-      doToggleDate(dateStr, '關閉');
-    });
-    return;
-  }
-  doToggleDate(dateStr, status);
-}
-
-function doToggleDate(dateStr, newStatus) {
-  if (newStatus === '關閉') closedDates[dateStr] = true;
-  else delete closedDates[dateStr];
-  renderScheduleControl();
-
-  sendToAPI({ action: 'updateSchedule', date: dateStr, status: newStatus }, function(res) {
-    console.log('[admin] updateSchedule:', dateStr, newStatus, res);
-    if (!res || !res.success) {
-      if (newStatus === '關閉') delete closedDates[dateStr];
-      else closedDates[dateStr] = true;
-      renderScheduleControl();
-      alert('排程更新失敗，請重試');
-    }
-  });
-}
-
-// ====== 日期篩選 Tabs ======
-
-function renderDateTabs() {
-  var el = document.getElementById('date-tabs');
-  var today = getToday();
-  var tomorrow = getTomorrow();
-  var dayNames = ['日','一','二','三','四','五','六'];
-
-  function shortLabel(ds, prefix) {
-    var d = new Date(ds + 'T00:00:00');
-    return prefix + ' ' + (d.getMonth()+1) + '/' + d.getDate();
-  }
-
-  var html = '';
-  html += '<div class="date-tab' + (!selectedViewDate ? ' active' : '') + '" onclick="switchDate(\'\')">全部</div>';
-  html += '<div class="date-tab' + (selectedViewDate === today ? ' active' : '') + '" onclick="switchDate(\'' + today + '\')">' + shortLabel(today, '今天') + '</div>';
-  html += '<div class="date-tab' + (selectedViewDate === tomorrow ? ' active' : '') + '" onclick="switchDate(\'' + tomorrow + '\')">' + shortLabel(tomorrow, '明天') + '</div>';
-
-  el.innerHTML = html;
-}
-
-function switchDate(date) {
-  selectedViewDate = date;
-  renderDateTabs();
-  if (rawOrders.length > 0) {
-    processOrders(rawOrders);
-  } else {
-    loadOrders();
-  }
-}
-
-// ====== 訂單 ======
-
-function loadOrders() {
-  if (CONFIG.apiUrl === 'DEMO_MODE') {
-    useDemoData();
-    return;
-  }
-
-  // 只載入最近 35 天的訂單（涵蓋圖表 30 天 + 緩衝）
-  var url = CONFIG.apiUrl + '?days=35';
-
-  fetch(url)
-    .then(function(r) { return r.json(); })
-    .then(function(data) {
-      console.log('[admin] API 回傳訂單筆數:', (data.orders || []).length);
-      if (data.orders && data.orders.length > 0) {
-        console.log('[admin] 第一筆 deliveryDate:', data.orders[0].deliveryDate);
-      }
-      rawOrders = data.orders || [];
-      processOrders(rawOrders);
-      renderChart();
-    })
-    .catch(function(err) {
-      console.error('[admin] 載入訂單失敗:', err);
-      if (allOrders && allOrders.length > 0) return;
-      document.getElementById('order-list').innerHTML = '<div class="empty">載入失敗，請點重新整理</div>';
-    });
-}
-
-function useDemoData() {
-  var date1 = schedule.length > 0 ? schedule[0].date : formatDate(new Date());
-  var date2 = schedule.length > 1 ? schedule[1].date : date1;
-  var demo = [
-    // 第一天的訂單
-    { location:'新光三越台中中港店', floor:'3F', store:'UNIQLO', customer:'王小美', phone:'0912-345-678', item:'排骨便當', qty:1, subtotal:80, total:170, payment:'現金', note:'不要香菜', deliveryDate:date1 },
-    { location:'', floor:'', store:'', customer:'王小美', phone:'', item:'雞腿便當', qty:1, subtotal:90, total:'', payment:'', note:'', deliveryDate:date1 },
-    { location:'新光三越台中中港店', floor:'3F', store:'GU', customer:'李佳佳', phone:'0923-456-789', item:'雞腿便當', qty:2, subtotal:180, total:180, payment:'現金', note:'', deliveryDate:date1 },
-    { location:'新光三越台中中港店', floor:'5F', store:'專櫃A', customer:'張小花', phone:'0934-567-890', item:'排骨便當', qty:1, subtotal:80, total:165, payment:'', note:'飯少', deliveryDate:date1 },
-    { location:'', floor:'', store:'', customer:'張小花', phone:'', item:'魚排便當', qty:1, subtotal:85, total:'', payment:'', note:'', deliveryDate:date1 },
-    // 第二天的訂單
-    { location:'台中大遠百', floor:'2F', store:'化妝品櫃', customer:'陳美美', phone:'0945-678-901', item:'控肉便當', qty:1, subtotal:80, total:80, payment:'現金', note:'', deliveryDate:date2 },
-    { location:'台中大遠百', floor:'4F', store:'女裝櫃', customer:'林小雯', phone:'0956-789-012', item:'素食便當', qty:1, subtotal:70, total:70, payment:'', note:'加辣', deliveryDate:date2 },
-    { location:'自取', floor:'', store:'', customer:'周大哥', phone:'0967-890-123', item:'排骨便當', qty:2, subtotal:160, total:160, payment:'現金', note:'', deliveryDate:date2 },
-  ];
-  processOrders(demo);
-}
-
-function processOrders(rows) {
-  console.log('[admin] processOrders 收到', rows.length, '筆，selectedViewDate=', selectedViewDate);
-  // 前端日期過濾（用 normDate 統一格式）
-  if (selectedViewDate) {
-    var target = normDate(selectedViewDate);
-    var before = rows.length;
-    rows = rows.filter(function(r) {
-      var nd = normDate(r.deliveryDate);
-      return nd === target;
-    });
-    console.log('[admin] 篩選日期', target, '：', before, '→', rows.length, '筆');
-  }
-
-  var customers = {};
-  var itemMap = {};
-  var totalQty = 0;
-
-  for (var i = 0; i < rows.length; i++) {
-    var r = rows[i];
-    var key = r.customer;
-    if (!customers[key]) {
-      customers[key] = { items: [], total: 0, payment: '', note: '', location: '', floor: '', store: '', phone: '', deliveryDate: '' };
-    }
-    customers[key].items.push({ name: r.item, qty: r.qty, subtotal: r.subtotal });
-    totalQty += Number(r.qty) || 0;
-
-    if (r.total) customers[key].total = Number(r.total);
-    if (r.payment) customers[key].payment = r.payment;
-    if (r.note) customers[key].note = r.note;
-    if (r.location) customers[key].location = r.location;
-    if (r.floor) customers[key].floor = r.floor;
-    if (r.store) customers[key].store = r.store;
-    if (r.phone) customers[key].phone = r.phone;
-    if (r.deliveryDate) customers[key].deliveryDate = r.deliveryDate;
-
-    if (!itemMap[r.item]) itemMap[r.item] = 0;
-    itemMap[r.item] += Number(r.qty) || 0;
-  }
-
-  var totalAmount = 0, paidAmt = 0, unpaidAmt = 0;
-  var names = Object.keys(customers);
-  allOrders = [];
-
-  for (var n = 0; n < names.length; n++) {
-    var c = customers[names[n]];
-    totalAmount += c.total;
-    if (c.payment === '已收款') paidAmt += c.total;
-    else unpaidAmt += c.total;
-    allOrders.push({ name: names[n], items: c.items, total: c.total, payment: c.payment, note: c.note, location: c.location, floor: c.floor, store: c.store, phone: c.phone, deliveryDate: c.deliveryDate });
-  }
-
-  allOrders.sort(function(a, b) {
-    if (a.location !== b.location) return a.location < b.location ? -1 : 1;
-    if (a.floor !== b.floor) return a.floor < b.floor ? -1 : 1;
-    return 0;
-  });
-
-  document.getElementById('total-qty').textContent = totalQty;
-  document.getElementById('total-amount').textContent = '$' + totalAmount.toLocaleString();
-  document.getElementById('total-unpaid').textContent = '$' + unpaidAmt.toLocaleString();
-  document.getElementById('order-count').textContent = names.length;
-
-  document.getElementById('pay-summary-section').innerHTML =
-    '<div class="pay-summary">' +
-      '<div class="pay-box paid"><div class="label">已付款</div><div class="amount">$' + paidAmt.toLocaleString() + '</div></div>' +
-      '<div class="pay-box unpaid"><div class="label">未付款</div><div class="amount">$' + unpaidAmt.toLocaleString() + '</div></div>' +
-    '</div>';
-
-  var itemKeys = Object.keys(itemMap);
-  var maxQty = Math.max.apply(null, itemKeys.map(function(k) { return itemMap[k]; })) || 1;
-  var itemHtml = '';
-  for (var k = 0; k < itemKeys.length; k++) {
-    var q = itemMap[itemKeys[k]];
-    var pct = Math.round(q / maxQty * 100);
-    itemHtml += '<div class="item-row">' +
-      '<div class="item-name">' + itemKeys[k] + '</div>' +
-      '<div class="bar"><div class="bar-fill" style="width:' + pct + '%"></div></div>' +
-      '<div class="item-qty">' + q + ' <span>個</span></div>' +
-    '</div>';
-  }
-  document.getElementById('item-summary').innerHTML = itemHtml || '<div class="empty">尚無資料</div>';
-
-  renderOrderList();
-  document.getElementById('last-update').textContent = '最後更新：' + new Date().toLocaleTimeString('zh-TW');
-}
-
-function renderOrderList() {
-  var orderHtml = '';
-  var currentLoc = '';
-  for (var o = 0; o < allOrders.length; o++) {
-    var ord = allOrders[o];
-    if (ord.location && ord.location !== currentLoc) {
-      if (currentLoc) orderHtml += '</div>';
-      currentLoc = ord.location;
-      var locClass = currentLoc.indexOf('新光') >= 0 ? 'shinko' : currentLoc.indexOf('自取') >= 0 ? 'pickup' : 'fardeast';
-      orderHtml += '<div class="loc-group"><div class="loc-header ' + locClass + '">' + currentLoc + '</div>';
-    }
-    var itemStr = ord.items.map(function(it) { return it.name + ' x' + it.qty; }).join('、');
-    var isPaid = ord.payment === '已收款';
-    var payClass = isPaid ? 'badge-paid' : 'badge-cash';
-    var payText = isPaid ? '已付款' : '未付款';
-    var floorHtml = ord.floor ? '<span class="floor-badge">' + ord.floor + '</span>' : '';
-    var detailParts = [];
-    if (ord.store) detailParts.push(ord.store);
-    detailParts.push(itemStr);
-    if (ord.note) detailParts.push(ord.note);
-    var dimStyle = isPaid ? 'opacity: 0.55;' : '';
-    orderHtml += '<div class="order-item" style="' + dimStyle + '">' +
-      '<div class="order-header">' +
-        '<div class="order-name">' + floorHtml + ord.name + (ord.phone ? ' <span style="font-size:12px;font-weight:400;color:#888;">' + ord.phone + '</span>' : '') + ' <span style="font-size:12px;color:#888;font-weight:400;">現金</span><span class="badge ' + payClass + '" onclick="togglePayment(' + o + ')" title="點擊切換付款狀態">' + payText + '</span></div>' +
-        '<div class="order-total">$' + ord.total.toLocaleString() + '</div>' +
-      '</div>' +
-      '<div class="order-detail">' + detailParts.join(' ・ ') + '</div>' +
-      '<div class="order-actions">' +
-        '<button class="act-btn edit" onclick="editOrder(' + o + ')">編輯</button>' +
-        '<button class="act-btn del" onclick="deleteOrder(' + o + ')">刪除</button>' +
-      '</div>' +
-    '</div>';
-  }
-  if (currentLoc) orderHtml += '</div>';
-  document.getElementById('order-list').innerHTML = orderHtml || '<div class="empty">這天還沒有訂單</div>';
-}
-
-// ====== 複製（相容 file:// 和手機瀏覽器）======
-
-function copyText(text) {
-  // 優先用 Clipboard API
-  if (navigator.clipboard && navigator.clipboard.writeText) {
-    navigator.clipboard.writeText(text).then(function() {
-      showToast('已複製！可以貼到 LINE');
-    }).catch(function() {
-      fallbackCopy(text);
-    });
-  } else {
-    fallbackCopy(text);
-  }
-}
-
-function fallbackCopy(text) {
-  var ta = document.createElement('textarea');
-  ta.value = text;
-  ta.style.cssText = 'position:fixed;left:-9999px;top:0;opacity:0;';
-  document.body.appendChild(ta);
-  ta.focus();
-  ta.select();
-  try {
-    document.execCommand('copy');
-    showToast('已複製！可以貼到 LINE');
-  } catch (e) {
-    showToast('複製失敗，請手動選取');
-  }
-  document.body.removeChild(ta);
-}
-
-function showToast(msg) {
-  var existing = document.getElementById('toast-msg');
-  if (existing) existing.remove();
-  var el = document.createElement('div');
-  el.id = 'toast-msg';
-  el.textContent = msg;
-  el.style.cssText = 'position:fixed;bottom:80px;left:50%;transform:translateX(-50%);background:#333;color:#fff;padding:10px 20px;border-radius:20px;font-size:14px;z-index:9999;white-space:nowrap;';
-  document.body.appendChild(el);
-  setTimeout(function() { el.remove(); }, 2000);
-}
-
-function copyItemSummary() {
-  var el = document.getElementById('item-summary');
-  var rows = el.querySelectorAll('.item-row');
-  var dateLabel = selectedViewDate ? getDateLabel(selectedViewDate) + ' ' : '';
-  var text = '【' + dateLabel + '便當統計】\n';
-  for (var i = 0; i < rows.length; i++) {
-    var name = rows[i].querySelector('.item-name').textContent;
-    var qty = rows[i].querySelector('.item-qty').textContent.trim();
-    text += name + '：' + qty + '\n';
-  }
-  text += '合計：' + document.getElementById('total-qty').textContent + ' 個';
-  copyText(text);
-}
-
-function copyOrderList() {
-  var dateLabel = selectedViewDate ? getDateLabel(selectedViewDate) + ' ' : '';
-  var text = '【' + dateLabel + '訂單明細】\n';
-  var curLoc = '';
-  for (var i = 0; i < allOrders.length; i++) {
-    var o = allOrders[i];
-    if (o.location && o.location !== curLoc) {
-      curLoc = o.location;
-      text += '\n▎' + curLoc + '\n';
-    }
-    var items = o.items.map(function(it) { return it.name + 'x' + it.qty; }).join('、');
-    var pay = (o.payment === '已收款') ? '已付' : '未付';
-    text += (o.floor ? o.floor + ' ' : '') + (o.store ? o.store + ' ' : '') + o.name + '：' + items + ' $' + o.total + '（' + pay + '）' + (o.note ? ' ' + o.note : '') + '\n';
-  }
-  text += '\n總計：' + document.getElementById('total-amount').textContent;
-  copyText(text);
-}
-
-// ====== 付款 ======
-
-function togglePayment(idx) {
-  var ord = allOrders[idx];
-  if (!ord) return;
-
-  var newPay = (ord.payment === '已收款') ? '現金' : '已收款';
-  ord.payment = newPay;
-
-  var dd = normDate(ord.deliveryDate);
-  sendToAPI({ action: 'updatePayment', customer: ord.name, payment: newPay, deliveryDate: dd }, function(res) {
-    console.log('[admin] updatePayment:', ord.name, newPay, dd, res);
-    if (!res || !res.success) alert('付款狀態更新失敗，請重試');
-  });
-
-  reRender();
-}
-
-function reRender() {
-  var totalAmt = 0, paidAmt = 0, unpaidAmt = 0, totalQty = 0;
-  for (var i = 0; i < allOrders.length; i++) {
-    var o = allOrders[i];
-    totalAmt += o.total;
-    for (var j = 0; j < o.items.length; j++) totalQty += Number(o.items[j].qty) || 0;
-    if (o.payment === '已收款') paidAmt += o.total;
-    else unpaidAmt += o.total;
-  }
-
-  document.getElementById('total-qty').textContent = totalQty;
-  document.getElementById('total-amount').textContent = '$' + totalAmt.toLocaleString();
-  document.getElementById('total-unpaid').textContent = '$' + unpaidAmt.toLocaleString();
-
-  document.getElementById('pay-summary-section').innerHTML =
-    '<div class="pay-summary">' +
-      '<div class="pay-box paid"><div class="label">已付款</div><div class="amount">$' + paidAmt.toLocaleString() + '</div></div>' +
-      '<div class="pay-box unpaid"><div class="label">未付款</div><div class="amount">$' + unpaidAmt.toLocaleString() + '</div></div>' +
-    '</div>';
-
-  renderOrderList();
-}
-
-// ====== 編輯/刪除訂單 ======
-
-var editingIdx = -1; // 正在編輯的訂單 index
-var editItems = [];  // 編輯中的品項 [{name, qty, subtotal}]
-
-function editOrder(idx) {
-  var ord = allOrders[idx];
-  if (!ord) return;
-  editingIdx = idx;
-  editItems = ord.items.map(function(it) { return { name: it.name, qty: it.qty, subtotal: it.subtotal }; });
-
-  document.getElementById('edit-name').value = ord.name;
-  document.getElementById('edit-phone').value = ord.phone || '';
-  document.getElementById('edit-location').value = ord.location || '';
-  document.getElementById('edit-floor').value = ord.floor || '';
-  document.getElementById('edit-store').value = ord.store || '';
-  document.getElementById('edit-note').value = ord.note || '';
-  document.getElementById('edit-modal-title').textContent = '編輯訂單 — ' + ord.name;
-
-  renderEditItems();
-  document.getElementById('edit-modal').style.display = 'flex';
-}
-
-function renderEditItems() {
-  var html = '';
-  for (var i = 0; i < editItems.length; i++) {
-    var it = editItems[i];
-    html += '<div class="edit-item-row">' +
-      '<div class="ename">' + it.name + '</div>' +
-      '<button class="qty-btn" onclick="changeEditQty(' + i + ',-1)">−</button>' +
-      '<div class="eqty">' + it.qty + '</div>' +
-      '<button class="qty-btn" onclick="changeEditQty(' + i + ',1)">+</button>' +
-    '</div>';
-  }
-  document.getElementById('edit-items').innerHTML = html;
-}
-
-function changeEditQty(i, delta) {
-  editItems[i].qty = Math.max(0, editItems[i].qty + delta);
-  // 更新小計（按比例）
-  var unitPrice = editItems[i].subtotal / Math.max(1, editItems[i].qty - delta);
-  editItems[i].subtotal = Math.round(unitPrice * editItems[i].qty);
-  renderEditItems();
-}
-
-function closeEditModal() {
-  document.getElementById('edit-modal').style.display = 'none';
-  editingIdx = -1;
-}
-
-function saveOrder() {
-  var ord = allOrders[editingIdx];
-  if (!ord) return;
-
-  // 過濾掉數量為 0 的品項
-  var validItems = editItems.filter(function(it) { return it.qty > 0; });
-  if (validItems.length === 0) {
-    var delIdx = editingIdx;
-    showConfirm('所有品項數量都是 0，要直接刪除此訂單嗎？', function() {
-      doDeleteOrder(delIdx);
-      closeEditModal();
-    });
-    return;
-  }
-
-  var oldCustomer = ord.name;
-  var newName = document.getElementById('edit-name').value.trim();
-  if (!newName) { alert('請填寫姓名'); return; }
-
-  var newTotal = 0;
-  for (var i = 0; i < validItems.length; i++) newTotal += validItems[i].subtotal;
-
-  var payload = {
-    action: 'updateOrder',
-    oldCustomer: oldCustomer,
-    deliveryDate: ord.deliveryDate,
-    customer: newName,
-    phone: document.getElementById('edit-phone').value.trim(),
-    location: document.getElementById('edit-location').value.trim(),
-    floor: document.getElementById('edit-floor').value.trim(),
-    store: document.getElementById('edit-store').value.trim(),
-    note: document.getElementById('edit-note').value.trim(),
-    total: newTotal,
-    payment: ord.payment || '現金',
-    items: validItems
-  };
-
-  // 更新本地資料
-  ord.name = newName;
-  ord.phone = payload.phone;
-  ord.location = payload.location;
-  ord.floor = payload.floor;
-  ord.store = payload.store;
-  ord.note = payload.note;
-  ord.items = validItems;
-  ord.total = newTotal;
-
-  // 同步更新 rawOrders（讓營業額圖表也更新）
-  var dd = normDate(ord.deliveryDate);
-  rawOrders = rawOrders.filter(function(r) {
-    return !(String(r.customer) === String(oldCustomer) && normDate(r.deliveryDate) === dd);
-  });
-  // 把新的品項加回 rawOrders
-  for (var vi = 0; vi < validItems.length; vi++) {
-    rawOrders.push({
-      customer: newName, item: validItems[vi].name, qty: validItems[vi].qty,
-      subtotal: validItems[vi].subtotal, total: vi === 0 ? newTotal : '',
-      deliveryDate: dd, location: payload.location, floor: payload.floor,
-      store: payload.store, phone: payload.phone, payment: ord.payment, note: payload.note
-    });
-  }
-
-  reRender();
-  renderChart();
-  closeEditModal();
-
-  sendToAPI(payload);
-}
-
-function deleteOrder(idx) {
-  var ord = allOrders[idx];
-  if (!ord) return;
-  showConfirm('確定要刪除 ' + ord.name + ' 的訂單嗎？', function() {
-    doDeleteOrder(idx);
-  });
-}
-
-function doDeleteOrder(idx) {
-  var ord = allOrders[idx];
-  if (!ord) return;
-
-  var dd = normDate(ord.deliveryDate);
-  sendToAPI({ action: 'deleteOrder', customer: String(ord.name), deliveryDate: dd });
-
-  // 同步刪除 rawOrders 中同客戶同日期的資料（讓營業額圖表也更新）
-  rawOrders = rawOrders.filter(function(r) {
-    return !(String(r.customer) === String(ord.name) && normDate(r.deliveryDate) === dd);
-  });
-
-  allOrders.splice(idx, 1);
-  reRender();
-  renderChart();
-}
-
-// ====== 自訂確認對話框 ======
-
-function showConfirm(msg, onYes) {
-  var overlay = document.getElementById('confirm-dialog');
-  document.getElementById('confirm-msg').textContent = msg;
-  overlay.style.display = 'flex';
-
-  var yesBtn = document.getElementById('confirm-yes');
-  var noBtn = document.getElementById('confirm-no');
-
-  // 移除舊的 listener（用 clone 取代）
-  var newYes = yesBtn.cloneNode(true);
-  yesBtn.parentNode.replaceChild(newYes, yesBtn);
-  var newNo = noBtn.cloneNode(true);
-  noBtn.parentNode.replaceChild(newNo, noBtn);
-
-  newYes.addEventListener('click', function() {
-    overlay.style.display = 'none';
-    onYes();
-  });
-  newNo.addEventListener('click', function() {
-    overlay.style.display = 'none';
-  });
-}
-
-// ====== 工具 ======
-
-// 透過 GET + payload 送資料到 Google Apps Script（避免 POST CORS 問題）
-function sendToAPI(data, callback) {
-  if (CONFIG.apiUrl === 'DEMO_MODE') { if (callback) callback({ success: true }); return; }
-  var url = CONFIG.apiUrl + '?payload=' + encodeURIComponent(JSON.stringify(data));
-  console.log('[admin] sendToAPI:', data.action, data);
-  fetch(url)
-    .then(function(r) {
-      console.log('[admin] sendToAPI response status:', r.status);
-      return r.json();
-    })
-    .then(function(res) {
-      console.log('[admin] sendToAPI result:', res);
-      if (callback) callback(res);
-    })
-    .catch(function(err) {
-      console.error('[admin] sendToAPI 失敗:', err);
-      if (callback) callback({ success: false, error: err.message });
-    });
-}
-
-function formatDate(d) {
-  var y = d.getFullYear();
-  var m = ('0' + (d.getMonth() + 1)).slice(-2);
-  var dd = ('0' + d.getDate()).slice(-2);
-  return y + '-' + m + '-' + dd;
-}
-
-// 把各種日期格式統一轉成 YYYY-MM-DD
-function normDate(val) {
-  if (!val) return '';
-  var s = val.toString().trim();
-  // 已經是 YYYY-MM-DD
-  if (/^\d{4}-\d{2}-\d{2}$/.test(s)) return s;
-  // ISO 格式含 T（例如 2026-04-29T00:00:00.000Z）
-  if (s.indexOf('T') > -1) {
-    var p = s.split('T')[0];
-    if (/^\d{4}-\d{2}-\d{2}$/.test(p)) return p;
-  }
-  // YYYY/M/D 或 YYYY/MM/DD（Google Sheets zh-TW 常見格式）
-  var slashMatch = s.match(/^(\d{4})[\/](\d{1,2})[\/](\d{1,2})$/);
-  if (slashMatch) {
-    return slashMatch[1] + '-' + ('0' + slashMatch[2]).slice(-2) + '-' + ('0' + slashMatch[3]).slice(-2);
-  }
-  // M/D/YYYY 格式
-  var mdyMatch = s.match(/^(\d{1,2})[\/](\d{1,2})[\/](\d{4})$/);
-  if (mdyMatch) {
-    return mdyMatch[3] + '-' + ('0' + mdyMatch[1]).slice(-2) + '-' + ('0' + mdyMatch[2]).slice(-2);
-  }
-  // 最後嘗試用 Date 解析
-  var d = new Date(s);
-  if (!isNaN(d.getTime())) {
-    return formatDate(d);
-  }
-  return s;
-}
-
-function getDateLabel(dateStr) {
-  var d = new Date(dateStr + 'T00:00:00');
-  var dayNames = ['日','一','二','三','四','五','六'];
-  return (d.getMonth() + 1) + '/' + d.getDate() + '（' + dayNames[d.getDay()] + '）';
-}
-
-function refreshAll() {
-  fetchSchedule(function() {
-    if (selectedViewDate) {
-      selectedViewDate = normDate(selectedViewDate);
-    }
-    renderDateTabs();
-    loadOrders();
-  });
-}
-
-// ====== 營業額圖表 ======
-var chartRange = 30;
-
-function setChartRange(days) {
-  chartRange = days;
-  document.querySelectorAll('.chart-range-btn').forEach(function(btn) {
-    btn.classList.toggle('active', btn.textContent.trim() === days + ' 天');
-  });
-  renderChart();
-}
-
-function renderChart() {
-  // 計算日期範圍（含明天，因為訂單是提前一天訂的）
-  var today = new Date();
-  var tomorrow = new Date(today);
-  tomorrow.setDate(tomorrow.getDate() + 1);
-  var dates = [];
-  for (var i = chartRange - 1; i >= 0; i--) {
-    var d = new Date(tomorrow);
-    d.setDate(d.getDate() - i);
-    dates.push(formatDate(d));
-  }
-
-  // 彙整每日數據
-  var daily = {};
-  dates.forEach(function(ds) { daily[ds] = { revenue: 0, orders: 0, bentos: 0 }; });
-
-  // 用 rawOrders 計算，每筆 row 的 total 只算一次（total 欄不為空的才是該訂單的主行）
-  rawOrders.forEach(function(o) {
-    var dd = normDate(o.deliveryDate);
-    if (!daily[dd]) return;
-    var qty = parseInt(o.qty) || 0;
-    daily[dd].bentos += qty;
-    var tot = parseFloat(o.total);
-    if (!isNaN(tot) && tot > 0) {
-      daily[dd].revenue += tot;
-      daily[dd].orders += 1;
-    }
-  });
-
-  // 摘要 + 品項統計
-  var totalRev = 0, totalOrders = 0, totalBentos = 0, activeDays = 0;
-  var chartItemMap = {};
-  dates.forEach(function(ds) {
-    totalRev += daily[ds].revenue;
-    totalOrders += daily[ds].orders;
-    totalBentos += daily[ds].bentos;
-    if (daily[ds].revenue > 0) activeDays++;
-  });
-  // 統計時間範圍內的品項
-  rawOrders.forEach(function(o) {
-    var dd = normDate(o.deliveryDate);
-    if (dates.indexOf(dd) < 0) return;
-    var qty = parseInt(o.qty) || 0;
-    var name = o.item || '';
-    if (!name) return;
-    if (!chartItemMap[name]) chartItemMap[name] = 0;
-    chartItemMap[name] += qty;
-  });
-  var avgRev = activeDays > 0 ? Math.round(totalRev / activeDays) : 0;
-
-  // 品項明細 HTML
-  var itemKeys = Object.keys(chartItemMap).sort(function(a, b) { return chartItemMap[b] - chartItemMap[a]; });
-  var itemDetailHtml = '';
-  for (var k = 0; k < itemKeys.length; k++) {
-    itemDetailHtml += '<div style="display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid #f0f0f0;font-size:13px;">' +
-      '<span>' + itemKeys[k] + '</span><span style="font-weight:600;">' + chartItemMap[itemKeys[k]] + ' 個</span></div>';
-  }
-  if (!itemDetailHtml) itemDetailHtml = '<div style="color:#aaa;font-size:13px;">尚無資料</div>';
-
-  var summaryEl = document.getElementById('chart-summary');
-  summaryEl.innerHTML =
-    '<div class="summary-card"><div class="num">$' + totalRev.toLocaleString() + '</div><div class="lbl">' + chartRange + ' 天總營業額</div></div>' +
-    '<div class="summary-card"><div class="num">$' + avgRev.toLocaleString() + '</div><div class="lbl">日均營業額</div></div>' +
-    '<div class="summary-card"><div class="num">' + totalOrders + '</div><div class="lbl">總訂單數</div></div>' +
-    '<div class="summary-card" onclick="toggleItemBreakdown()" style="cursor:pointer;position:relative;">' +
-      '<div class="num">' + totalBentos + '</div><div class="lbl">總便當數 ▾</div>' +
-    '</div>';
-
-  // 品項展開區
-  var breakdownEl = document.getElementById('item-breakdown');
-  if (!breakdownEl) {
-    breakdownEl = document.createElement('div');
-    breakdownEl.id = 'item-breakdown';
-    breakdownEl.style.cssText = 'display:none;background:#fafaf7;border-radius:10px;padding:12px 14px;margin-bottom:10px;';
-    summaryEl.parentNode.insertBefore(breakdownEl, summaryEl.nextSibling);
-  }
-  breakdownEl.innerHTML = '<div style="font-weight:600;font-size:13px;margin-bottom:6px;color:#666;">品項明細（' + chartRange + ' 天）</div>' + itemDetailHtml;
-
-  // 找最高值
-  var maxRev = 0;
-  dates.forEach(function(ds) { if (daily[ds].revenue > maxRev) maxRev = daily[ds].revenue; });
-  if (maxRev === 0) maxRev = 1;
-
-  var chartH = 160;
-  var dayNames = ['日','一','二','三','四','五','六'];
-  var html = '<div style="display:flex;align-items:flex-end;gap:3px;min-height:' + chartH + 'px;padding-top:24px;">';
-
-  dates.forEach(function(ds) {
-    var d = daily[ds];
-    var barH = Math.max(2, Math.round((d.revenue / maxRev) * (chartH - 24)));
-    var dd = new Date(ds + 'T00:00:00');
-    var label = (dd.getMonth() + 1) + '/' + dd.getDate();
-    var dayOfWeek = dd.getDay();
-    var isRest = REST_DAYS.indexOf(dayOfWeek) >= 0;
-    var valText = d.revenue > 0 ? '$' + d.revenue.toLocaleString() : '';
-    var tooltip = ds + '（週' + dayNames[dayOfWeek] + '）\n營業額：$' + d.revenue.toLocaleString() + '\n訂單數：' + d.orders + '\n便當數：' + d.bentos;
-
-    html += '<div class="chart-bar-wrap">';
-    html += '<div class="chart-val">' + valText + '</div>';
-    html += '<div class="chart-bar' + (d.revenue === 0 ? ' zero' : '') + '" style="height:' + barH + 'px;' + (isRest ? 'background:#e0e0e0;' : '') + '" title="' + tooltip + '"></div>';
-    html += '<div class="chart-label" style="' + (isRest ? 'color:#ccc;' : '') + '">' + label + '</div>';
-    html += '</div>';
-  });
-
-  html += '</div>';
-
-  if (chartRange > 14) {
-    html += '<div style="font-size:10px;color:#bbb;text-align:center;margin-top:6px;">← 左右滑動查看更多 →</div>';
-  }
-
-  document.getElementById('chart-area').innerHTML = html;
-}
-
-// ====== 啟動（一次 API 拿排程 + 訂單）======
-
-function loadAll() {
-  if (CONFIG.apiUrl === 'DEMO_MODE') {
-    renderScheduleControl();
-    useDemoData();
-    return;
-  }
-
-  fetch(CONFIG.apiUrl + '?action=getAll&days=35')
-    .then(function(r) { return r.json(); })
-    .then(function(data) {
-      // 排程
-      closedDates = {};
-      var list = data.schedule || [];
-      for (var i = 0; i < list.length; i++) {
-        var d = normDate(list[i].date);
-        if (d && list[i].status === '關閉') {
-          closedDates[d] = true;
-        }
-      }
-      renderScheduleCont
+var CONFIG={apiUrl:'https://script.google.com/macros/s/AKfycbx9dMjOM0Gaiokbq-GCM8wvov8nKY_B4rEcElpAH7dZlfLjjiFzVhBLtAoSEyJNLnXH/exec',password:'home782'};
+function doLogin(){var pw=document.getElementById('login-pw').value;if(pw===CONFIG.password){document.getElementById('login-gate').style.display='none';sessionStorage.setItem('admin_auth','1');}else{document.getElementById('login-err').style.display='block';document.getElementById('login-pw').value='';document.getElementById('login-pw').focus();}}
+if(sessionStorage.getItem('admin_auth')==='1'){document.getElementById('login-gate').style.display='none';}
+var allOrders=[],rawOrders=[],closedDates={},selectedViewDate='',OPEN_HOUR=19,CUTOFF_HOUR=16,REST_DAYS=[1,2];
+function getToday(){return formatDate(new Date());}
+function getTomorrow(){var d=new Date();d.setDate(d.getDate()+1);return formatDate(d);}
+function isDateOpen(ds){return !closedDates[ds];}
+function isRestDay(ds){var d=new Date(ds+'T00:00:00');return REST_DAYS.indexOf(d.getDay())>=0;}
+function fetchSchedule(cb){if(CONFIG.apiUrl==='DEMO_MODE'){closedDates={};renderScheduleControl();if(cb)cb();return;}fetch(CONFIG.apiUrl+'?action=getSchedule').then(function(r){return r.json();}).then(function(data){closedDates={};var list=data.schedule||[];for(var i=0;i<list.length;i++){var d=normDate(list[i].date);if(d&&list[i].status==='關閉')closedDates[d]=true;}renderScheduleControl();if(cb)cb();}).catch(function(){closedDates={};renderScheduleControl();if(cb)cb();});}
+function renderScheduleControl(){var now=new Date();var hour=now.getHours();var today=getToday();var tomorrow=getTomorrow();var dayNames=['日','一','二','三','四','五','六'];function dateLabel(ds){var d=new Date(ds+'T00:00:00');return(d.getMonth()+1)+'/'+d.getDate()+'（週'+dayNames[d.getDay()]+'）';}var html='';var todayRest=isRestDay(today);var todayOpen=!todayRest&&isDateOpen(today);var todayTag='';if(todayRest)todayTag='<span style="color:#c44;font-size:12px;margin-left:6px;">店休</span>';else if(!todayOpen)todayTag='<span style="color:#c44;font-size:12px;margin-left:6px;">已完售</span>';else if(hour<CUTOFF_HOUR)todayTag='<span style="color:#1D9E75;font-size:12px;margin-left:6px;">● 客人訂購中</span>';else if(hour<OPEN_HOUR)todayTag='<span style="color:#888;font-size:12px;margin-left:6px;">已截止</span>';else todayTag='<span style="color:#888;font-size:12px;margin-left:6px;">今日結束</span>';html+='<div style="display:flex;align-items:center;justify-content:space-between;padding:12px;background:'+(todayRest?'#fafafa':todayOpen?'#E1F5EE':'#f5f5f0')+';border-radius:10px;margin-bottom:8px;">';html+='<div><span style="font-weight:600;font-size:14px;">今天 '+dateLabel(today)+'</span>'+todayTag+'</div>';if(!todayRest){html+='<div style="display:flex;gap:6px;">';html+='<div class="sched-chip '+(todayOpen?'open':'')+'" onclick="setDate(\''+today+'\',\'開放\')" style="min-width:52px;margin:0;'+(todayOpen?'font-weight:700;':'background:#f0f0f0;color:#aaa;border-color:#ddd;')+'">開放</div>';html+='<div class="sched-chip '+(!todayOpen?'closed':'')+'" onclick="setDate(\''+today+'\',\'關閉\')" style="min-width:52px;margin:0;'+(!todayOpen?'font-weight:700;background:#FBEAF0;color:#c44;border-color:#c44;':'background:#f0f0f0;color:#aaa;border-color:#ddd;')+'">關閉</div>';html+='</div>';}html+='</div>';var tmrRest=isRestDay(tomorrow);var tmrOpen=!tmrRest&&isDateOpen(tomorrow);var tmrTag='';if(tmrRest)tmrTag='<span style="color:#c44;font-size:12px;margin-left:6px;">店休</span>';else if(!tmrOpen)tmrTag='<span style="color:#c44;font-size:12px;margin-left:6px;">已完售</span>';else if(hour>=OPEN_HOUR)tmrTag='<span style="color:#1D9E75;font-size:12px;margin-left:6px;">● 客人訂購中</span>';else tmrTag='<span style="color:#888;font-size:12px;margin-left:6px;">晚上 7 點開放</span>';html+='<div style="display:flex;align-items:center;justify-content:space-between;padding:12px;background:'+(tmrRest?'#fafafa':tmrOpen?'#E1F5EE':'#f5f5f0')+';border-radius:10px;">';html+='<div><span style="font-weight:600;font-size:14px;">明天 '+dateLabel(tomorrow)+'</span>'+tmrTag+'</div>';if(!tmrRest){html+='<div style="display:flex;gap:6px;">';html+='<div class="sched-chip '+(tmrOpen?'open':'')+'" onclick="setDate(\''+tomorrow+'\',\'開放\')" style="min-width:52px;margin:0;'+(tmrOpen?'font-weight:700;':'background:#f0f0f0;color:#aaa;border-color:#ddd;')+'">開放</div>';html+='<div class="sched-chip '+(!tmrOpen?'closed':'')+'" onclick="setDate(\''+tomorrow+'\',\'關閉\')" style="min-width:52px;margin:0;'+(!tmrOpen?'font-weight:700;background:#FBEAF0;color:#c44;border-color:#c44;':'background:#f0f0f0;color:#aaa;border-color:#ddd;')+'">關閉</div>';html+='</div>';}html+='</div>';document.getElementById('sched-control').innerHTML=html;renderDateTabs();}
+function toggleDate(ds){var o=isDateOpen(ds);if(o){var d=new Date(ds+'T00:00:00');var dn=['日','一','二','三','四','五','六'];var l=(d.getMonth()+1)+'/'+d.getDate()+'（週'+dn[d.getDay()]+'）';showConfirm('確定要關閉 '+l+' 嗎？\n關閉後前台無法訂購',function(){doToggleDate(ds,'關閉');});}else{doToggleDate(ds,'開放');}}
+function toggleItemBreakdown(){var el=document.getElementById('item-breakdown');if(el)el.style.display=el.style.display==='none'?'block':'none';}
+function setDate(dateStr,status){var currentlyOpen=isDateOpen(dateStr);if(status==='開放'&&currentlyOpen)return;if(status==='關閉'&&!currentlyOpen)return;if(status==='關閉'){var d=new Date(dateStr+'T00:00:00');var dayNames=['日','一','二','三','四','五','六'];var label=(d.getMonth()+1)+'/'+d.getDate()+'（週'+dayNames[d.getDay()]+'）';showConfirm('確定要關閉 '+label+' 嗎？\n關閉後前台無法訂購',function(){doToggleDate(dateStr,'關閉');});return;}doToggleDate(dateStr,status);}
+function doToggleDate(dateStr,newStatus){if(newStatus==='關閉')closedDates[dateStr]=true;else delete closedDates[dateStr];renderScheduleControl();sendToAPI({action:'updateSchedule',date:dateStr,status:newStatus},function(res){if(!res||!res.success){if(newStatus==='關閉')delete closedDates[dateStr];else closedDates[dateStr]=true;renderScheduleControl();alert('排程更新失敗，請重試');}});}
+function renderDateTabs(){var el=document.getElementById('date-tabs');var today=getToday();var tomorrow=getTomorrow();var dayNames=['日','一','二','三','四','五','六'];function shortLabel(ds,prefix){var d=new Date(ds+'T00:00:00');return prefix+' '+(d.getMonth()+1)+'/'+d.getDate();}var html='';html+='<div class="date-tab'+(!selectedViewDate?' active':'')+'" onclick="switchDate(\'\')">全部</div>';html+='<div class="date-tab'+(selectedViewDate===today?' active':'')+'" onclick="switchDate(\''+today+'\')">'+shortLabel(today,'今天')+'</div>';html+='<div class="date-tab'+(selectedViewDate===tomorrow?' active':'')+'" onclick="switchDate(\''+tomorrow+'\')">'+shortLabel(tomorrow,'明天')+'</div>';el.innerHTML=html;}
+function switchDate(date){selectedViewDate=date;renderDateTabs();if(rawOrders.length>0){processOrders(rawOrders);}else{loadOrders();}}
+function loadOrders(){if(CONFIG.apiUrl==='DEMO_MODE')return;fetch(CONFIG.apiUrl+'?days=35').then(function(r){return r.json();}).then(function(data){rawOrders=data.orders||[];processOrders(rawOrders);renderChart();}).catch(function(err){console.error('[admin] 載入訂單失敗:',err);if(allOrders&&allOrders.length>0)return;document.getElementById('order-list').innerHTML='<div class="empty">載入失敗，請點重新整理</div>';});}
+function processOrders(rows){if(selectedViewDate){var target=normDate(selectedViewDate);rows=rows.filter(function(r){return normDate(r.deliveryDate)===target;});}var customers={};var itemMap={};var totalQty=0;for(var i=0;i<rows.length;i++){var r=rows[i];var key=r.customer;if(!customers[key])customers[key]={items:[],total:0,payment:'',note:'',location:'',floor:'',store:'',phone:'',deliveryDate:''};customers[key].items.push({name:r.item,qty:r.qty,subtotal:r.subtotal});totalQty+=Number(r.qty)||0;if(r.total)customers[key].total=Number(r.total);if(r.payment)customers[key].payment=r.payment;if(r.note)customers[key].note=r.note;if(r.location)customers[key].location=r.location;if(r.floor)customers[key].floor=r.floor;if(r.store)customers[key].store=r.store;if(r.phone)customers[key].phone=r.phone;if(r.deliveryDate)customers[key].deliveryDate=r.deliveryDate;if(!itemMap[r.item])itemMap[r.item]=0;itemMap[r.item]+=Number(r.qty)||0;}var totalAmount=0,paidAmt=0,unpaidAmt=0;var names=Object.keys(customers);allOrders=[];for(var n=0;n<names.length;n++){var c=customers[names[n]];totalAmount+=c.total;if(c.payment==='已收款')paidAmt+=c.total;else unpaidAmt+=c.total;allOrders.push({name:names[n],items:c.items,total:c.total,payment:c.payment,note:c.note,location:c.location,floor:c.floor,store:c.store,phone:c.phone,deliveryDate:c.deliveryDate});}allOrders.sort(function(a,b){if(a.location!==b.location)return a.location<b.location?-1:1;if(a.floor!==b.floor)return a.floor<b.floor?-1:1;return 0;});document.getElementById('total-qty').textContent=totalQty;document.getElementById('total-amount').textContent='$'+totalAmount.toLocaleString();document.getElementById('total-unpaid').textContent='$'+unpaidAmt.toLocaleString();document.getElementById('order-count').textContent=names.length;document.getElementById('pay-summary-section').innerHTML='<div class="pay-summary"><div class="pay-box paid"><div class="label">已付款</div><div class="amount">$'+paidAmt.toLocaleString()+'</div></div><div class="pay-box unpaid"><div class="label">未付款</div><div class="amount">$'+unpaidAmt.toLocaleString()+'</div></div></div>';var itemKeys=Object.keys(itemMap);var maxQty=Math.max.apply(null,itemKeys.map(function(k){return itemMap[k];}))||1;var itemHtml='';for(var k=0;k<itemKeys.length;k++){var q=itemMap[itemKeys[k]];var pct=Math.round(q/maxQty*100);itemHtml+='<div class="item-row"><div class="item-name">'+itemKeys[k]+'</div><div class="bar"><div class="bar-fill" style="width:'+pct+'%"></div></div><div class="item-qty">'+q+' <span>個</span></div></div>';}document.getElementById('item-summary').innerHTML=itemHtml||'<div class="empty">尚無資料</div>';renderOrderList();document.getElementById('last-update').textContent='最後更新：'+new Date().toLocaleTimeString('zh-TW');}
+function renderOrderList(){var orderHtml='';var currentLoc='';for(var o=0;o<allOrders.length;o++){var ord=allOrders[o];if(ord.location&&ord.location!==currentLoc){if(currentLoc)orderHtml+='</div>';currentLoc=ord.location;var locClass=currentLoc.indexOf('新光')>=0?'shinko':currentLoc.indexOf('自取')>=0?'pickup':'fardeast';orderHtml+='<div class="loc-group"><div class="loc-header '+locClass+'">'+currentLoc+'</div>';}var itemStr=ord.items.map(function(it){return it.name+' x'+it.qty;}).join('、');var isPaid=ord.payment==='已收款';var payClass=isPaid?'badge-paid':'badge-cash';var payText=isPaid?'已付款':'未付款';var floorHtml=ord.floor?'<span class="floor-badge">'+ord.floor+'</span>':'';var detailParts=[];if(ord.store)detailParts.push(ord.store);detailParts.push(itemStr);if(ord.note)detailParts.push(ord.note);var dimStyle=isPaid?'opacity: 0.55;':'';orderHtml+='<div class="order-item" style="'+dimStyle+'"><div class="order-header"><div class="order-name">'+floorHtml+ord.name+(ord.phone?' <span style="font-size:12px;font-weight:400;color:#888;">'+ord.phone+'</span>':'')+' <span style="font-size:12px;color:#888;font-weight:400;">現金</span><span class="badge '+payClass+'" onclick="togglePayment('+o+')" title="點擊切換付款狀態">'+payText+'</span></div><div class="order-total">$'+ord.total.toLocaleString()+'</div></div><div class="order-detail">'+detailParts.join(' ・ ')+'</div><div class="order-actions"><button class="act-btn edit" onclick="editOrder('+o+')">編輯</button><button class="act-btn del" onclick="deleteOrder('+o+')">刪除</button></div></div>';}if(currentLoc)orderHtml+='</div>';document.getElementById('order-list').innerHTML=orderHtml||'<div class="empty">這天還沒有訂單</div>';}
+function copyText(text){if(navigator.clipboard&&navigator.clipboard.writeText){navigator.clipboard.writeText(text).then(function(){showToast('已複製！可以貼到 LINE');}).catch(function(){fallbackCopy(text);});}else{fallbackCopy(text);}}
+function fallbackCopy(text){var ta=document.createElement('textarea');ta.value=text;ta.style.cssText='position:fixed;left:-9999px;top:0;opacity:0;';document.body.appendChild(ta);ta.focus();ta.select();try{document.execCommand('copy');showToast('已複製！可以貼到 LINE');}catch(e){showToast('複製失敗，請手動選取');}document.body.removeChild(ta);}
+function showToast(msg){var existing=document.getElementById('toast-msg');if(existing)existing.remove();var el=document.createElement('div');el.id='toast-msg';el.textContent=msg;el.style.cssText='position:fixed;bottom:80px;left:50%;transform:translateX(-50%);background:#333;color:#fff;padding:10px 20px;border-radius:20px;font-size:14px;z-index:9999;white-space:nowrap;';document.body.appendChild(el);setTimeout(function(){el.remove();},2000);}
+function copyItemSummary(){var el=document.getElementById('item-summary');var rows=el.querySelectorAll('.item-row');var dateLabel=selectedViewDate?getDateLabel(selectedViewDate)+' ':'';var text='【'+dateLabel+'便當統計】\n';for(var i=0;i<rows.length;i++){text+=rows[i].querySelector('.item-name').textContent+'：'+rows[i].querySelector('.item-qty').textContent.trim()+'\n';}text+='合計：'+document.getElementById('total-qty').textContent+' 個';copyText(text);}
+function copyOrderList(){var dateLabel=selectedViewDate?getDateLabel(selectedViewDate)+' ':'';var text='【'+dateLabel+'訂單明細】\n';var curLoc='';for(var i=0;i<allOrders.length;i++){var o=allOrders[i];if(o.location&&o.location!==curLoc){curLoc=o.location;text+='\n▎'+curLoc+'\n';}var items=o.items.map(function(it){return it.name+'x'+it.qty;}).join('、');var pay=(o.payment==='已收款')?'已付':'未付';text+=(o.floor?o.floor+' ':'')+(o.store?o.store+' ':'')+o.name+'：'+items+' $'+o.total+'（'+pay+'）'+(o.note?' '+o.note:'')+'\n';}text+='\n總計：'+document.getElementById('total-amount').textContent;copyText(text);}
+function togglePayment(idx){var ord=allOrders[idx];if(!ord)return;var newPay=(ord.payment==='已收款')?'現金':'已收款';ord.payment=newPay;var dd=normDate(ord.deliveryDate);sendToAPI({action:'updatePayment',customer:ord.name,payment:newPay,deliveryDate:dd},function(res){if(!res||!res.success)alert('付款狀態更新失敗，請重試');});reRender();}
+function reRender(){var totalAmt=0,paidAmt=0,unpaidAmt=0,totalQty=0;for(var i=0;i<allOrders.length;i++){var o=allOrders[i];totalAmt+=o.total;for(var j=0;j<o.items.length;j++)totalQty+=Number(o.items[j].qty)||0;if(o.payment==='已收款')paidAmt+=o.total;else unpaidAmt+=o.total;}document.getElementById('total-qty').textContent=totalQty;document.getElementById('total-amount').textContent='$'+totalAmt.toLocaleString();document.getElementById('total-unpaid').textContent='$'+unpaidAmt.toLocaleString();document.getElementById('pay-summary-section').innerHTML='<div class="pay-summary"><div class="pay-box paid"><div class="label">已付款</div><div class="amount">$'+paidAmt.toLocaleString()+'</div></div><div class="pay-box unpaid"><div class="label">未付款</div><div class="amount">$'+unpaidAmt.toLocaleString()+'</div></div></div>';renderOrderList();}
+var editingIdx=-1,editItems=[];
+function editOrder(idx){var ord=allOrders[idx];if(!ord)return;editingIdx=idx;editItems=ord.items.map(function(it){return{name:it.name,qty:it.qty,subtotal:it.subtotal};});document.getElementById('edit-name').value=ord.name;document.getElementById('edit-phone').value=ord.phone||'';document.getElementById('edit-location').value=ord.location||'';document.getElementById('edit-floor').value=ord.floor||'';document.getElementById('edit-store').value=ord.store||'';document.getElementById('edit-note').value=ord.note||'';document.getElementById('edit-modal-title').textContent='編輯訂單 — '+ord.name;renderEditItems();document.getElementById('edit-modal').style.display='flex';}
+function renderEditItems(){var html='';for(var i=0;i<editItems.length;i++){var it=editItems[i];html+='<div class="edit-item-row"><div class="ename">'+it.name+'</div><button class="qty-btn" onclick="changeEditQty('+i+',-1)">−</button><div class="eqty">'+it.qty+'</div><button class="qty-btn" onclick="changeEditQty('+i+',1)">+</button></div>';}document.getElementById('edit-items').innerHTML=html;}
+function changeEditQty(i,delta){editItems[i].qty=Math.max(0,editItems[i].qty+delta);var unitPrice=editItems[i].subtotal/Math.max(1,editItems[i].qty-delta);editItems[i].subtotal=Math.round(unitPrice*editItems[i].qty);renderEditItems();}
+function closeEditModal(){document.getElementById('edit-modal').style.display='none';editingIdx=-1;}
+function saveOrder(){var ord=allOrders[editingIdx];if(!ord)return;var validItems=editItems.filter(function(it){return it.qty>0;});if(validItems.length===0){var delIdx=editingIdx;showConfirm('所有品項數量都是 0，要直接刪除此訂單嗎？',function(){doDeleteOrder(delIdx);closeEditModal();});return;}var oldCustomer=ord.name;var newName=document.getElementById('edit-name').value.trim();if(!newName){alert('請填寫姓名');return;}var newTotal=0;for(var i=0;i<validItems.length;i++)newTotal+=validItems[i].subtotal;var payload={action:'updateOrder',oldCustomer:oldCustomer,deliveryDate:ord.deliveryDate,customer:newName,phone:document.getElementById('edit-phone').value.trim(),location:document.getElementById('edit-location').value.trim(),floor:document.getElementById('edit-floor').value.trim(),store:document.getElementById('edit-store').value.trim(),note:document.getElementById('edit-note').value.trim(),total:newTotal,payment:ord.payment||'現金',items:validItems};ord.name=newName;ord.phone=payload.phone;ord.location=payload.location;ord.floor=payload.floor;ord.store=payload.store;ord.note=payload.note;ord.items=validItems;ord.total=newTotal;var dd=normDate(ord.deliveryDate);rawOrders=rawOrders.filter(function(r){return!(String(r.customer)===String(oldCustomer)&&normDate(r.deliveryDate)===dd);});for(var vi=0;vi<validItems.length;vi++){rawOrders.push({customer:newName,item:validItems[vi].name,qty:validItems[vi].qty,subtotal:validItems[vi].subtotal,total:vi===0?newTotal:'',deliveryDate:dd,location:payload.location,floor:payload.floor,store:payload.store,phone:payload.phone,payment:ord.payment,note:payload.note});}reRender();renderChart();closeEditModal();sendToAPI(payload);}
+function deleteOrder(idx){var ord=allOrders[idx];if(!ord)return;showConfirm('確定要刪除 '+ord.name+' 的訂單嗎？',function(){doDeleteOrder(idx);});}
+function doDeleteOrder(idx){var ord=allOrders[idx];if(!ord)return;var dd=normDate(ord.deliveryDate);sendToAPI({action:'deleteOrder',customer:String(ord.name),deliveryDate:dd});rawOrders=rawOrders.filter(function(r){return!(String(r.customer)===String(ord.name)&&normDate(r.deliveryDate)===dd);});allOrders.splice(idx,1);reRender();renderChart();}
+function showConfirm(msg,onYes){var overlay=document.getElementById('confirm-dialog');document.getElementById('confirm-msg').textContent=msg;overlay.style.display='flex';var yesBtn=document.getElementById('confirm-yes');var noBtn=document.getElementById('confirm-no');var newYes=yesBtn.cloneNode(true);yesBtn.parentNode.replaceChild(newYes,yesBtn);var newNo=noBtn.cloneNode(true);noBtn.parentNode.replaceChild(newNo,noBtn);newYes.addEventListener('click',function(){overlay.style.display='none';onYes();});newNo.addEventListener('click',function(){overlay.style.display='none';});}
+function sendToAPI(data,callback){if(CONFIG.apiUrl==='DEMO_MODE'){if(callback)callback({success:true});return;}var url=CONFIG.apiUrl+'?payload='+encodeURIComponent(JSON.stringify(data));fetch(url).then(function(r){return r.json();}).then(function(res){if(callback)callback(res);}).catch(function(err){console.error('[admin] sendToAPI 失敗:',err);if(callback)callback({success:false,error:err.message});});}
+function formatDate(d){var y=d.getFullYear();var m=('0'+(d.getMonth()+1)).slice(-2);var dd=('0'+d.getDate()).slice(-2);return y+'-'+m+'-'+dd;}
+function normDate(val){if(!val)return'';var s=val.toString().trim();if(/^\d{4}-\d{2}-\d{2}$/.test(s))return s;if(s.indexOf('T')>-1){var p=s.split('T')[0];if(/^\d{4}-\d{2}-\d{2}$/.test(p))return p;}var sm=s.match(/^(\d{4})[\/](\d{1,2})[\/](\d{1,2})$/);if(sm)return sm[1]+'-'+('0'+sm[2]).slice(-2)+'-'+('0'+sm[3]).slice(-2);var mm=s.match(/^(\d{1,2})[\/](\d{1,2})[\/](\d{4})$/);if(mm)return mm[3]+'-'+('0'+mm[1]).slice(-2)+'-'+('0'+mm[2]).slice(-2);var d=new Date(s);if(!isNaN(d.getTime()))return formatDate(d);return s;}
+function getDateLabel(dateStr){var d=new Date(dateStr+'T00:00:00');var dayNames=['日','一','二','三','四','五','六'];return(d.getMonth()+1)+'/'+d.getDate()+'（'+dayNames[d.getDay()]+'）';}
+function refreshAll(){fetchSchedule(function(){if(selectedViewDate)selectedViewDate=normDate(selectedViewDate);renderDateTabs();loadOrders();});}
+var chartRange=30;
+function setChartRange(days){chartRange=days;document.querySelectorAll('.chart-range-btn').forEach(function(btn){btn.classList.toggle('active',btn.textContent.trim()===days+' 天');});renderChart();}
+function renderChart(){var today=new Date();var tomorrow=new Date(today);tomorrow.setDate(tomorrow.getDate()+1);var dates=[];for(var i=chartRange-1;i>=0;i--){var d=new Date(tomorrow);d.setDate(d.getDate()-i);dates.push(formatDate(d));}var daily={};dates.forEach(function(ds){daily[ds]={revenue:0,orders:0,bentos:0};});rawOrders.forEach(function(o){var dd=normDate(o.deliveryDate);if(!daily[dd])return;daily[dd].bentos+=parseInt(o.qty)||0;var tot=parseFloat(o.total);if(!isNaN(tot)&&tot>0){daily[dd].revenue+=tot;daily[dd].orders+=1;}});var totalRev=0,totalOrders=0,totalBentos=0,activeDays=0;var chartItemMap={};dates.forEach(function(ds){totalRev+=daily[ds].revenue;totalOrders+=daily[ds].orders;totalBentos+=daily[ds].bentos;if(daily[ds].revenue>0)activeDays++;});rawOrders.forEach(function(o){var dd=normDate(o.deliveryDate);if(dates.indexOf(dd)<0)return;var qty=parseInt(o.qty)||0;var name=o.item||'';if(!name)return;if(!chartItemMap[name])chartItemMap[name]=0;chartItemMap[name]+=qty;});var avgRev=activeDays>0?Math.round(totalRev/activeDays):0;var itemKeys=Object.keys(chartItemMap).sort(function(a,b){return chartItemMap[b]-chartItemMap[a];});var itemDetailHtml='';for(var k=0;k<itemKeys.length;k++){itemDetailHtml+='<div style="display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid #f0f0f0;font-size:13px;"><span>'+itemKeys[k]+'</span><span style="font-weight:600;">'+chartItemMap[itemKeys[k]]+' 個</span></div>';}if(!itemDetailHtml)itemDetailHtml='<div style="color:#aaa;font-size:13px;">尚無資料</div>';var summaryEl=document.getElementById('chart-summary');summaryEl.innerHTML='<div class="summary-card"><div class="num">$'+totalRev.toLocaleString()+'</div><div class="lbl">'+chartRange+' 天總營業額</div></div><div class="summary-card"><div class="num">$'+avgRev.toLocaleString()+'</div><div class="lbl">日均營業額</div></div><div class="summary-card"><div class="num">'+totalOrders+'</div><div class="lbl">總訂單數</div></div><div class="summary-card" onclick="toggleItemBreakdown()" style="cursor:pointer;position:relative;"><div class="num">'+totalBentos+'</div><div class="lbl">總便當數 ▾</div></div>';var breakdownEl=document.getElementById('item-breakdown');if(!breakdownEl){breakdownEl=document.createElement('div');breakdownEl.id='item-breakdown';breakdownEl.style.cssText='display:none;background:#fafaf7;border-radius:10px;padding:12px 14px;margin-bottom:10px;';summaryEl.parentNode.insertBefore(breakdownEl,summaryEl.nextSibling);}breakdownEl.innerHTML='<div style="font-weight:600;font-size:13px;margin-bottom:6px;color:#666;">品項明細（'+chartRange+' 天）</div>'+itemDetailHtml;var maxRev=0;dates.forEach(function(ds){if(daily[ds].revenue>maxRev)maxRev=daily[ds].revenue;});if(maxRev===0)maxRev=1;var chartH=160;var dayNames=['日','一','二','三','四','五','六'];var html='<div style="display:flex;align-items:flex-end;gap:3px;min-height:'+chartH+'px;padding-top:24px;">';dates.forEach(function(ds){var d=daily[ds];var barH=Math.max(2,Math.round((d.revenue/maxRev)*(chartH-24)));var dd=new Date(ds+'T00:00:00');var label=(dd.getMonth()+1)+'/'+dd.getDate();var dayOfWeek=dd.getDay();var isRest=REST_DAYS.indexOf(dayOfWeek)>=0;var valText=d.revenue>0?'$'+d.revenue.toLocaleString():'';var tooltip=ds+'（週'+dayNames[dayOfWeek]+'）\n營業額：$'+d.revenue.toLocaleString()+'\n訂單數：'+d.orders+'\n便當數：'+d.bentos;html+='<div class="chart-bar-wrap">';html+='<div class="chart-val">'+valText+'</div>';html+='<div class="chart-bar'+(d.revenue===0?' zero':'')+'" style="height:'+barH+'px;'+(isRest?'background:#e0e0e0;':'')+'" title="'+tooltip+'"></div>';html+='<div class="chart-label" style="'+(isRest?'color:#ccc;':'')+'">'+label+'</div>';html+='</div>';});html+='</div>';if(chartRange>14){html+='<div style="font-size:10px;color:#bbb;text-align:center;margin-top:6px;">← 左右滑動查看更多 →</div>';}document.getElementById('chart-area').innerHTML=html;}
+function loadAll(){if(CONFIG.apiUrl==='DEMO_MODE'){renderScheduleControl();return;}fetch(CONFIG.apiUrl+'?action=getAll&days=35').then(function(r){return r.json();}).then(function(data){closedDates={};var list=data.schedule||[];for(var i=0;i<list.length;i++){var d=normDate(list[i].date);if(d&&list[i].status==='關閉')closedDates[d]=true;}renderScheduleControl();rawOrders=data.orders||[];processOrders(rawOrders);renderChart();}).catch(function(err){console.error('[admin] loadAll 失敗:',err);renderScheduleControl();document.getElementById('order-list').innerHTML='<div class="empty">載入失敗，請點重新整理</div>';});}
+loadAll();
+</script>
+</body>
+</html>
