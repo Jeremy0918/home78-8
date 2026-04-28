@@ -1,0 +1,480 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>便當訂餐</title>
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #f5f5f0; color: #2C2C2A; min-height: 100vh; }
+.header { background: #fff; padding: 20px 16px 16px; text-align: center; border-bottom: 1px solid #eee; }
+.header h1 { font-size: 20px; font-weight: 600; margin-bottom: 4px; }
+.header p { font-size: 13px; color: #888; }
+.deadline-bar { background: #FFF3CD; color: #856404; text-align: center; padding: 8px; font-size: 13px; font-weight: 500; }
+.menu-banner { width: 100%; cursor: pointer; display: block; }
+.menu-banner img { width: 100%; display: block; }
+.menu-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.85); z-index: 200; align-items: center; justify-content: center; cursor: pointer; }
+.menu-overlay img { max-width: 95%; max-height: 90vh; object-fit: contain; border-radius: 8px; }
+.info-tags { display: flex; flex-wrap: wrap; gap: 6px; padding: 12px 16px; justify-content: center; }
+.info-tag { font-size: 12px; padding: 4px 10px; border-radius: 20px; background: #fff; color: #555; border: 1px solid #e0e0e0; }
+.closed-note { text-align: center; padding: 6px; font-size: 12px; color: #999; background: #fafafa; }
+.container { max-width: 480px; margin: 0 auto; padding: 16px; }
+.section { background: #fff; border-radius: 12px; padding: 16px; margin-bottom: 12px; }
+.section-title { font-size: 15px; font-weight: 600; margin-bottom: 12px; color: #444; }
+.name-input { width: 100%; padding: 12px; border: 1.5px solid #ddd; border-radius: 10px; font-size: 16px; outline: none; transition: border-color 0.2s; }
+.name-input:focus { border-color: #1D9E75; }
+.form-row { display: flex; gap: 8px; margin-bottom: 10px; }
+.form-row:last-child { margin-bottom: 0; }
+.form-select { width: 100%; padding: 12px; border: 1.5px solid #ddd; border-radius: 10px; font-size: 16px; outline: none; transition: border-color 0.2s; background: #fff; -webkit-appearance: none; appearance: none; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath d='M2 4l4 4 4-4' fill='none' stroke='%23888' stroke-width='1.5'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 12px center; }
+.form-select:focus { border-color: #1D9E75; }
+.menu-item { display: flex; align-items: center; padding: 12px 0; border-bottom: 1px solid #f0f0f0; }
+.menu-item:last-child { border-bottom: none; }
+.item-info { flex: 1; }
+.item-name { font-size: 15px; font-weight: 500; }
+.item-price { font-size: 13px; color: #1D9E75; font-weight: 600; margin-top: 2px; }
+.qty-control { display: flex; align-items: center; gap: 0; }
+.qty-btn { width: 36px; height: 36px; border: 1.5px solid #ddd; background: #fff; font-size: 18px; cursor: pointer; display: flex; align-items: center; justify-content: center; color: #555; transition: all 0.15s; user-select: none; }
+.qty-btn:first-child { border-radius: 8px 0 0 8px; }
+.qty-btn:last-child { border-radius: 0 8px 8px 0; }
+.qty-btn:active { background: #f0f0f0; }
+.qty-btn.disabled { opacity: 0.3; pointer-events: none; }
+.qty-display { width: 40px; height: 36px; border-top: 1.5px solid #ddd; border-bottom: 1.5px solid #ddd; display: flex; align-items: center; justify-content: center; font-size: 16px; font-weight: 600; background: #fafafa; }
+.note-input { width: 100%; padding: 12px; border: 1.5px solid #ddd; border-radius: 10px; font-size: 14px; outline: none; resize: none; height: 60px; }
+.note-input:focus { border-color: #1D9E75; }
+.summary-bar { position: sticky; bottom: 0; background: #fff; border-top: 1px solid #eee; padding: 12px 16px; display: flex; align-items: center; justify-content: space-between; }
+.summary-total { font-size: 13px; color: #888; }
+.summary-total span { font-size: 22px; font-weight: 700; color: #2C2C2A; display: block; }
+.submit-btn { padding: 14px 32px; background: #1D9E75; color: #fff; border: none; border-radius: 12px; font-size: 16px; font-weight: 600; cursor: pointer; transition: all 0.2s; }
+.submit-btn:active { transform: scale(0.97); background: #0F6E56; }
+.submit-btn:disabled { background: #ccc; cursor: not-allowed; transform: none; }
+.success-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 100; align-items: center; justify-content: center; }
+.success-card { background: #fff; border-radius: 16px; padding: 32px; text-align: center; margin: 16px; max-width: 320px; }
+.success-icon { width: 64px; height: 64px; background: #E1F5EE; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 16px; font-size: 28px; }
+.success-card h2 { font-size: 18px; margin-bottom: 8px; }
+.success-card p { font-size: 14px; color: #888; margin-bottom: 16px; }
+.success-card button { padding: 12px 24px; background: #1D9E75; color: #fff; border: none; border-radius: 10px; font-size: 15px; cursor: pointer; }
+.loading { pointer-events: none; opacity: 0.6; }
+/* 休息中遮罩 */
+.closed-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 100; align-items: center; justify-content: center; }
+.closed-card { background: #fff; border-radius: 16px; padding: 32px; text-align: center; margin: 16px; max-width: 320px; }
+.closed-card .icon { font-size: 48px; margin-bottom: 12px; }
+.closed-card h2 { font-size: 18px; margin-bottom: 8px; }
+.closed-card p { font-size: 14px; color: #888; line-height: 1.6; }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <h1 id="shop-name">便當訂餐</h1>
+  <p style="font-size: 12px; color: #aaa; margin-bottom: 4px;">人氣古早味便當</p>
+  <p id="order-date"></p>
+</div>
+<div class="deadline-bar" id="deadline-bar"></div>
+
+<div class="menu-banner" onclick="document.getElementById('menu-zoom').style.display='flex'">
+  <img src="menu.jpg" alt="人氣古早味便當菜單" onerror="this.parentElement.style.display='none'" />
+</div>
+<div class="menu-overlay" id="menu-zoom" onclick="this.style.display='none'">
+  <img src="menu.jpg" alt="菜單放大" />
+</div>
+
+<div class="info-tags">
+  <span class="info-tag">使用台梗九號米</span>
+  <span class="info-tag">每日新鮮現做</span>
+  <span class="info-tag">可客製化</span>
+  <span class="info-tag">依季節更換菜色</span>
+</div>
+<div class="closed-note">每天晚上 7 點開放隔天訂購，週一週二店休</div>
+
+<div class="container">
+  <!-- 取餐日期 -->
+  <div class="section">
+    <div class="section-title">選擇取餐日期</div>
+    <div class="form-row">
+      <select class="form-select" id="date-select" disabled>
+        <option value="">載入中...</option>
+      </select>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-title">送餐資訊</div>
+    <div class="form-row">
+      <select class="form-select" id="cust-location" onchange="updateFloors()">
+        <option value="">選擇取餐方式</option>
+        <option value="新光三越台中中港店">新光三越 台中中港店</option>
+        <option value="台中大遠百">台中大遠百</option>
+        <option value="自取">自取</option>
+      </select>
+    </div>
+    <div class="form-row" id="floor-row">
+      <select class="form-select" id="cust-floor" style="flex:1;">
+        <option value="">選擇樓層</option>
+      </select>
+    </div>
+    <div class="form-row" id="store-row">
+      <input type="text" class="name-input" id="cust-store" placeholder="櫃位 / 店家名稱" />
+    </div>
+    <div class="form-row">
+      <input type="text" class="name-input" id="cust-name" placeholder="你的名字" />
+    </div>
+    <div class="form-row">
+      <input type="tel" class="name-input" id="cust-phone" placeholder="手機號碼" inputmode="tel" />
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-title">選擇便當</div>
+    <div id="menu-list"></div>
+  </div>
+
+  <div class="section" style="padding: 12px 16px; display: flex; align-items: center; gap: 8px;">
+    <div class="section-title" style="margin-bottom: 0;">付款方式</div>
+    <span style="font-size: 14px; color: #0F6E56; font-weight: 600;">現金</span>
+  </div>
+
+  <div class="section">
+    <div class="section-title">備註</div>
+    <textarea class="note-input" id="note" placeholder="例如：不要香菜、飯少一點"></textarea>
+  </div>
+
+  <div style="height: 80px;"></div>
+</div>
+
+<div class="summary-bar">
+  <div class="summary-total">
+    合計
+    <span id="total-display">$0</span>
+  </div>
+  <button class="submit-btn" id="submit-btn" onclick="submitOrder()" disabled>送出訂單</button>
+</div>
+
+<div class="success-overlay" id="success-overlay">
+  <div class="success-card">
+    <div class="success-icon">&#10003;</div>
+    <h2>訂單已送出！</h2>
+    <p id="success-msg">會幫你準備好</p>
+    <button onclick="resetForm()">再訂一份</button>
+  </div>
+</div>
+
+<!-- 目前沒開放時顯示 -->
+<div class="closed-overlay" id="closed-overlay">
+  <div class="closed-card">
+    <div class="icon">&#128564;</div>
+    <h2>目前沒有開放訂購</h2>
+    <p id="closed-reason">每天晚上 7 點開放隔天訂購<br>請稍後再來</p>
+  </div>
+</div>
+
+<script>
+// ============================================================
+// ★★★ 設定區 — 只需要改這裡 ★★★
+// ============================================================
+var CONFIG = {
+  shopName: 'Home 78-2 便當',
+  apiUrl: 'https://script.google.com/macros/s/AKfycbx9dMjOM0Gaiokbq-GCM8wvov8nKY_B4rEcElpAH7dZlfLjjiFzVhBLtAoSEyJNLnXH/exec',
+  deadline: '下午 4 點前訂餐｜百貨送餐 5:30｜自取 5:30-7:00',
+  openHour: 19,   // 晚上 7 點開放隔天訂購
+  cutoffHour: 16, // 下午 4 點截止當天訂單
+  restDays: [1, 2], // 店休日（0=日,1=一,2=二,...6=六）
+  menu: [
+    { name: '滷雞腿', price: 110 },
+    { name: '打拋豬', price: 100 },
+    { name: '鐵路便當', price: 100 },
+    { name: '素食', price: 100 },
+    { name: '舒肥雞', price: 100 },
+    { name: '舒肥雞蝦餐', price: 160 }
+  ]
+};
+// ============================================================
+
+var quantities = new Array(CONFIG.menu.length).fill(0);
+var selectedDate = '';  // 取餐日期 (YYYY-MM-DD)
+
+// 樓層選項（B2~14F）
+var allFloors = ['B2','B1','1F','2F','3F','4F','5F','6F','7F','8F','9F','10F','11F','12F','13F','14F'];
+var floors = {
+  '新光三越台中中港店': allFloors,
+  '台中大遠百': allFloors
+};
+
+// ====== 日期相關 ======
+
+function formatDate(d) {
+  var y = d.getFullYear();
+  var m = ('0' + (d.getMonth() + 1)).slice(-2);
+  var dd = ('0' + d.getDate()).slice(-2);
+  return y + '-' + m + '-' + dd;
+}
+
+function normDate(val) {
+  if (!val) return '';
+  var s = val.toString().trim();
+  if (/^\d{4}-\d{2}-\d{2}$/.test(s)) return s;
+  if (s.indexOf('T') > -1) { var p = s.split('T')[0]; if (/^\d{4}-\d{2}-\d{2}$/.test(p)) return p; }
+  var slashMatch = s.match(/^(\d{4})[\/](\d{1,2})[\/](\d{1,2})$/);
+  if (slashMatch) return slashMatch[1] + '-' + ('0' + slashMatch[2]).slice(-2) + '-' + ('0' + slashMatch[3]).slice(-2);
+  var d = new Date(s);
+  if (!isNaN(d.getTime())) return formatDate(d);
+  return s;
+}
+
+// 根據現在時間算出「可訂購的取餐日期」
+function getTargetDate() {
+  var now = new Date();
+  var hour = now.getHours();
+  if (hour >= CONFIG.openHour) {
+    // 晚上 7 點後：開放隔天
+    var tomorrow = new Date(now);
+    tomorrow.setDate(tomorrow.getDate() + 1);
+    return formatDate(tomorrow);
+  } else if (hour < CONFIG.cutoffHour) {
+    // 截止前：今天仍可訂（昨晚 7 點開放的）
+    return formatDate(now);
+  } else {
+    // 截止～開放之間：沒有可訂的日期
+    return null;
+  }
+}
+
+function isRestDay(dateStr) {
+  var d = new Date(dateStr + 'T00:00:00');
+  return CONFIG.restDays.indexOf(d.getDay()) >= 0;
+}
+
+function checkAndRender() {
+  var target = getTargetDate();
+  var dayNames = ['日','一','二','三','四','五','六'];
+
+  if (!target) {
+    document.getElementById('closed-reason').innerHTML =
+      '訂購已截止<br>晚上 ' + CONFIG.openHour + ' 點開放明天訂購';
+    document.getElementById('closed-overlay').style.display = 'flex';
+    return;
+  }
+
+  // 檢查店休日
+  if (isRestDay(target)) {
+    var targetObj = new Date(target + 'T00:00:00');
+    var dayLabel = '週' + dayNames[targetObj.getDay()];
+    document.getElementById('closed-reason').innerHTML =
+      dayLabel + '店休<br>請留意 LINE 群組通知';
+    document.getElementById('closed-overlay').style.display = 'flex';
+    return;
+  }
+
+  // Demo 模式
+  if (CONFIG.apiUrl === 'DEMO_MODE') {
+    showTargetDate(target);
+    return;
+  }
+
+  // 查 API 看這天有沒有被後台關閉
+  fetch(CONFIG.apiUrl + '?action=getSchedule')
+    .then(function(r) { return r.json(); })
+    .then(function(data) {
+      var schedule = data.schedule || [];
+      var closed = false;
+      for (var i = 0; i < schedule.length; i++) {
+        if (normDate(schedule[i].date) === target && schedule[i].status === '關閉') {
+          closed = true;
+          break;
+        }
+      }
+      if (closed) {
+        document.getElementById('closed-reason').innerHTML =
+          '今日便當已完售<br>晚上 ' + CONFIG.openHour + ' 點開放明天訂購';
+        document.getElementById('closed-overlay').style.display = 'flex';
+      } else {
+        showTargetDate(target);
+      }
+    })
+    .catch(function() {
+      // API 失敗，樂觀顯示（讓客人能訂）
+      showTargetDate(target);
+    });
+}
+
+function showTargetDate(dateStr) {
+  var dayNames = ['日','一','二','三','四','五','六'];
+  var dateObj = new Date(dateStr + 'T00:00:00');
+  var label = (dateObj.getMonth() + 1) + '/' + dateObj.getDate() + '（週' + dayNames[dateObj.getDay()] + '）';
+
+  selectedDate = dateStr;
+
+  // 更新下拉選單（只有一個選項）
+  var sel = document.getElementById('date-select');
+  sel.innerHTML = '<option value="' + dateStr + '">' + label + '</option>';
+  sel.value = dateStr;
+
+  document.getElementById('order-date').textContent = label + ' 取餐';
+}
+
+// ====== 樓層 ======
+
+function updateFloors() {
+  var loc = document.getElementById('cust-location').value;
+  var floorRow = document.getElementById('floor-row');
+  var storeRow = document.getElementById('store-row');
+  var floorSelect = document.getElementById('cust-floor');
+
+  if (loc === '自取') {
+    floorRow.style.display = 'none';
+    storeRow.style.display = 'none';
+    floorSelect.value = '';
+    document.getElementById('cust-store').value = '';
+  } else {
+    floorRow.style.display = 'flex';
+    storeRow.style.display = 'flex';
+    floorSelect.innerHTML = '<option value="">選擇樓層</option>';
+    if (loc && floors[loc]) {
+      for (var i = 0; i < floors[loc].length; i++) {
+        floorSelect.innerHTML += '<option value="' + floors[loc][i] + '">' + floors[loc][i] + '</option>';
+      }
+    }
+  }
+}
+
+// ====== 初始化 ======
+
+document.getElementById('shop-name').textContent = CONFIG.shopName;
+document.getElementById('deadline-bar').textContent = CONFIG.deadline;
+
+function renderMenu() {
+  var el = document.getElementById('menu-list');
+  var html = '';
+  for (var i = 0; i < CONFIG.menu.length; i++) {
+    var item = CONFIG.menu[i];
+    html += '<div class="menu-item">' +
+      '<div class="item-info"><div class="item-name">' + item.name + '</div>' +
+      '<div class="item-price">$' + item.price + '</div></div>' +
+      '<div class="qty-control">' +
+        '<div class="qty-btn' + (quantities[i]===0?' disabled':'') + '" onclick="changeQty(' + i + ',-1)">−</div>' +
+        '<div class="qty-display" id="qty-' + i + '">' + quantities[i] + '</div>' +
+        '<div class="qty-btn" onclick="changeQty(' + i + ',1)">+</div>' +
+      '</div></div>';
+  }
+  el.innerHTML = html;
+  updateTotal();
+}
+
+function changeQty(idx, delta) {
+  quantities[idx] = Math.max(0, quantities[idx] + delta);
+  renderMenu();
+}
+
+function updateTotal() {
+  var total = 0, hasItems = false;
+  for (var i = 0; i < CONFIG.menu.length; i++) {
+    total += CONFIG.menu[i].price * quantities[i];
+    if (quantities[i] > 0) hasItems = true;
+  }
+  document.getElementById('total-display').textContent = '$' + total.toLocaleString();
+  document.getElementById('submit-btn').disabled = !hasItems;
+}
+
+// ====== 送出訂單 ======
+
+function submitOrder() {
+  if (!selectedDate) { alert('請選擇取餐日期'); return; }
+
+  var location = document.getElementById('cust-location').value;
+  if (!location) { document.getElementById('cust-location').focus(); alert('請選擇取餐方式'); return; }
+  var floor = '';
+  var store = '';
+  if (location !== '自取') {
+    floor = document.getElementById('cust-floor').value;
+    if (!floor) { document.getElementById('cust-floor').focus(); alert('請選擇樓層'); return; }
+    store = document.getElementById('cust-store').value.trim();
+    if (!store) { document.getElementById('cust-store').focus(); alert('請輸入櫃位/店家名稱'); return; }
+  }
+  var name = document.getElementById('cust-name').value.trim();
+  if (!name) { document.getElementById('cust-name').focus(); alert('請輸入名字'); return; }
+  var phone = document.getElementById('cust-phone').value.trim();
+  if (!phone) { document.getElementById('cust-phone').focus(); alert('請輸入手機號碼'); return; }
+
+  var items = [];
+  var total = 0;
+  for (var i = 0; i < CONFIG.menu.length; i++) {
+    if (quantities[i] > 0) {
+      items.push({ name: CONFIG.menu[i].name, qty: quantities[i], subtotal: CONFIG.menu[i].price * quantities[i] });
+      total += CONFIG.menu[i].price * quantities[i];
+    }
+  }
+  if (items.length === 0) { alert('請至少選一個便當'); return; }
+
+  var note = document.getElementById('note').value.trim();
+
+  var order = {
+    location: location,
+    floor: floor,
+    store: store,
+    customer: name,
+    phone: phone,
+    items: items,
+    total: total,
+    payment: 'cash',
+    note: note,
+    deliveryDate: selectedDate,
+    timestamp: new Date().toISOString()
+  };
+
+  var btn = document.getElementById('submit-btn');
+  btn.textContent = '送出中...';
+  btn.disabled = true;
+  document.body.classList.add('loading');
+
+  if (CONFIG.apiUrl === 'DEMO_MODE') {
+    setTimeout(function() { showSuccess(order); }, 500);
+    return;
+  }
+
+  var url = CONFIG.apiUrl + '?payload=' + encodeURIComponent(JSON.stringify(order));
+  fetch(url)
+    .then(function(r) { return r.json(); })
+    .then(function(res) {
+      if (res.success) showSuccess(order);
+      else { alert('送出失敗，請重試'); btn.textContent = '送出訂單'; btn.disabled = false; document.body.classList.remove('loading'); }
+    })
+    .catch(function() {
+      alert('送出失敗，請確認網路連線後重試');
+      btn.textContent = '送出訂單';
+      btn.disabled = false;
+      document.body.classList.remove('loading');
+    });
+}
+
+function showSuccess(order) {
+  var dateObj = new Date(order.deliveryDate + 'T00:00:00');
+  var dayNames = ['日','一','二','三','四','五','六'];
+  var dateLabel = (dateObj.getMonth()+1) + '/' + dateObj.getDate() + '（週' + dayNames[dateObj.getDay()] + '）';
+  var itemStr = order.items.map(function(it) { return it.name + ' x' + it.qty; }).join('、');
+  document.getElementById('success-msg').textContent = dateLabel + ' 取餐\n' + itemStr + '，合計 $' + order.total;
+  document.getElementById('success-overlay').style.display = 'flex';
+  document.body.classList.remove('loading');
+}
+
+function resetForm() {
+  quantities = new Array(CONFIG.menu.length).fill(0);
+  document.getElementById('cust-location').value = '';
+  document.getElementById('cust-floor').innerHTML = '<option value="">選擇樓層</option>';
+  document.getElementById('cust-store').value = '';
+  document.getElementById('floor-row').style.display = 'flex';
+  document.getElementById('store-row').style.display = 'flex';
+  document.getElementById('cust-name').value = '';
+  document.getElementById('cust-phone').value = '';
+  document.getElementById('note').value = '';
+  document.getElementById('success-overlay').style.display = 'none';
+  var btn = document.getElementById('submit-btn');
+  btn.textContent = '送出訂單';
+  btn.disabled = true;
+  renderMenu();
+}
+
+// 啟動
+renderMenu();
+checkAndRender();
+</script>
+</body>
+</html>
