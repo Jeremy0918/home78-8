@@ -70,8 +70,6 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; b
   <p style="font-size: 12px; color: #aaa; margin-bottom: 4px;">人氣古早味便當</p>
   <p id="order-date"></p>
 </div>
-<div class="deadline-bar" id="deadline-bar"></div>
-
 <div class="menu-banner" onclick="document.getElementById('menu-zoom').style.display='flex'">
   <img src="menu.jpg" alt="人氣古早味便當菜單" onerror="this.parentElement.style.display='none'" />
 </div>
@@ -79,12 +77,6 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; b
   <img src="menu.jpg" alt="菜單放大" />
 </div>
 
-<div class="info-tags">
-  <span class="info-tag">使用台梗九號米</span>
-  <span class="info-tag">每日新鮮現做</span>
-  <span class="info-tag">可客製化</span>
-  <span class="info-tag">依季節更換菜色</span>
-</div>
 <div class="closed-note">每天晚上 7 點開放隔天訂購，週一週二店休</div>
 
 <div class="container">
@@ -464,4 +456,8 @@ function showSuccess(order) {
 function resetForm() {
   quantities = new Array(CONFIG.menu.length).fill(0);
   document.getElementById('cust-location').value = '';
-  document.getE
+  document.getElementById('cust-floor').innerHTML = '<option value="">選擇樓層</option>';
+  document.getElementById('cust-store').value = '';
+  document.getElementById('floor-row').style.display = 'flex';
+  document.getElementById('store-row').style.display = 'flex';
+  document.getElementById('cus
