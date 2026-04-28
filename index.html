@@ -39,6 +39,11 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; b
 .soldout-tag { display: inline-block; padding: 4px 10px; background: #f5f5f0; color: #aaa; font-size: 13px; font-weight: 600; border-radius: 8px; }
 .menu-item.is-soldout .item-name, .menu-item.is-soldout .item-price { color: #ccc; text-decoration: line-through; }
 .menu-item.is-soldout .item-img { opacity: 0.35; }
+.addon-item { display: flex; align-items: center; padding: 10px 0; border-bottom: 1px solid #f0f0f0; }
+.addon-item:last-child { border-bottom: none; }
+.addon-info { flex: 1; }
+.addon-name { font-size: 14px; font-weight: 500; }
+.addon-price { font-size: 12px; color: #BA7517; font-weight: 600; margin-top: 1px; }
 .qty-display { width: 40px; height: 36px; border-top: 1.5px solid #ddd; border-bottom: 1.5px solid #ddd; display: flex; align-items: center; justify-content: center; font-size: 16px; font-weight: 600; background: #fafafa; }
 .note-input { width: 100%; padding: 12px; border: 1.5px solid #ddd; border-radius: 10px; font-size: 14px; outline: none; resize: none; height: 60px; }
 .note-input:focus { border-color: #1D9E75; }
@@ -119,6 +124,12 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; b
     <div id="menu-list"></div>
   </div>
 
+  <div class="section">
+    <div class="section-title">加購</div>
+    <div style="font-size:12px;color:#999;margin-bottom:10px;">訂多個便當時，請在備註說明加購要加在哪個便當</div>
+    <div id="addon-list"></div>
+  </div>
+
   <div class="section" style="padding: 12px 16px; display: flex; align-items: center; gap: 8px;">
     <div class="section-title" style="margin-bottom: 0;">付款方式</div>
     <span style="font-size: 14px; color: #0F6E56; font-weight: 600;">現金</span>
@@ -174,11 +185,16 @@ var CONFIG = {
     { name: '素食', price: 100, img: 'img/veggie.jpg' },
     { name: '舒肥雞', price: 100, img: 'img/sous-vide.jpg' },
     { name: '舒肥雞蝦餐', price: 160, img: 'img/sous-vide-shrimp.jpg' }
+  ],
+  addons: [
+    { name: '加飯', price: 20 },
+    { name: '荷包蛋', price: 20 }
   ]
 };
 // ============================================================
 
 var quantities = new Array(CONFIG.menu.length).fill(0);
+var addonQuantities = new Array(CONFIG.addons.length).fill(0);
 var selectedDate = '';
 var soldoutItems = {};
 
@@ -343,6 +359,37 @@ function renderMenu() {
     }
   }
   el.innerHTML = html;
+  renderAddons();
+  updateTotal();
+}
+
+function renderAddons() {
+  var el = document.getElementById('addon-list');
+  var html = '';
+  for (var i = 0; i < CONFIG.addons.length; i++) {
+    var addon = CONFIG.addons[i];
+    html += '<div class="addon-item">' +
+      '<div class="addon-info"><div class="addon-name">' + addon.name + '</div>' +
+      '<div class="addon-price">+$' + addon.price + '</div></div>' +
+      '<div class="qty-control">' +
+        '<div class="qty-btn' + (addonQuantities[i]===0?' disabled':'') + '" onclick="changeAddon(' + i + ',-1)">−</div>' +
+        '<div class="qty-display" id="addon-qty-' + i + '">' + addonQuantities[i] + '</div>' +
+        '<div class="qty-btn" onclick="changeAddon(' + i + ',1)">+</div>' +
+      '</div></div>';
+  }
+  el.innerHTML = html;
+}
+
+function changeAddon(idx, delta) {
+  addonQuantities[idx] = Math.max(0, addonQuantities[idx] + delta);
+  var qtyEl = document.getElementById('addon-qty-' + idx);
+  if (qtyEl) qtyEl.textContent = addonQuantities[idx];
+  var items = document.querySelectorAll('.addon-item');
+  var minusBtn = items[idx] && items[idx].querySelector('.qty-btn');
+  if (minusBtn) {
+    if (addonQuantities[idx] === 0) minusBtn.classList.add('disabled');
+    else minusBtn.classList.remove('disabled');
+  }
   updateTotal();
 }
 
@@ -365,6 +412,9 @@ function updateTotal() {
   for (var i = 0; i < CONFIG.menu.length; i++) {
     total += CONFIG.menu[i].price * quantities[i];
     if (quantities[i] > 0) hasItems = true;
+  }
+  for (var j = 0; j < CONFIG.addons.length; j++) {
+    total += CONFIG.addons[j].price * addonQuantities[j];
   }
   document.getElementById('total-display').textContent = '$' + total.toLocaleString();
   document.getElementById('submit-btn').disabled = !hasItems;
@@ -395,6 +445,12 @@ function submitOrder() {
     }
   }
   if (items.length === 0) { alert('請至少選一個便當'); return; }
+  for (var j = 0; j < CONFIG.addons.length; j++) {
+    if (addonQuantities[j] > 0) {
+      items.push({ name: CONFIG.addons[j].name, qty: addonQuantities[j], subtotal: CONFIG.addons[j].price * addonQuantities[j] });
+      total += CONFIG.addons[j].price * addonQuantities[j];
+    }
+  }
   var note = document.getElementById('note').value.trim();
   var order = {
     location: location, floor: floor, store: store,
@@ -437,6 +493,7 @@ function showSuccess(order) {
 
 function resetForm() {
   quantities = new Array(CONFIG.menu.length).fill(0);
+  addonQuantities = new Array(CONFIG.addons.length).fill(0);
   document.getElementById('cust-location').value = '';
   document.getElementById('cust-floor').innerHTML = '<option value="">選擇樓層</option>';
   document.getElementById('cust-store').value = '';
