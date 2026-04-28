@@ -368,7 +368,7 @@ function renderMenu() {
       if (quantities[i] > 0) {
         html += '<div class="addon-panel" id="addon-panel-' + i + '">';
         html += '<div class="addon-panel-title">加購（' + item.name + '）</div>';
-        if (quantities[i] > 1) {
+        if (quantities[i] >= 2) {
           html += '<div style="font-size:11px;color:#c44;background:#FFF3CD;padding:6px 10px;border-radius:6px;margin-bottom:6px;">點了 ' + quantities[i] + ' 個' + item.name + '，如有加購請在下方備註說明哪個要加</div>';
         }
         for (var a = 0; a < CONFIG.addons.length; a++) {
@@ -413,7 +413,7 @@ function changeQty(idx, delta) {
   if (newQty === 0) {
     for (var a = 0; a < CONFIG.addons.length; a++) addonQuantities[idx][a] = 0;
   }
-  if ((oldQty === 0 && newQty > 0) || (oldQty > 0 && newQty === 0)) {
+  if ((oldQty === 0 && newQty > 0) || (oldQty > 0 && newQty === 0) || (oldQty === 1 && newQty === 2) || (oldQty === 2 && newQty === 1)) {
     renderMenu();
     return;
   }
