@@ -335,7 +335,7 @@ function updateFloors() {
 // ====== 初始化 ======
 
 document.getElementById('shop-name').textContent = CONFIG.shopName;
-document.getElementById('deadline-bar').textContent = CONFIG.deadline;
+// deadline-bar 已移除
 
 function renderMenu() {
   var el = document.getElementById('menu-list');
@@ -460,4 +460,5 @@ function resetForm() {
   document.getElementById('cust-store').value = '';
   document.getElementById('floor-row').style.display = 'flex';
   document.getElementById('store-row').style.display = 'flex';
-  document.getElementById('cus
+  document.getElementById('cust-name').value = '';
+  document.getElementByI
