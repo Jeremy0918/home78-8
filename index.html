@@ -39,11 +39,19 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; b
 .soldout-tag { display: inline-block; padding: 4px 10px; background: #f5f5f0; color: #aaa; font-size: 13px; font-weight: 600; border-radius: 8px; }
 .menu-item.is-soldout .item-name, .menu-item.is-soldout .item-price { color: #ccc; text-decoration: line-through; }
 .menu-item.is-soldout .item-img { opacity: 0.35; }
-.addon-item { display: flex; align-items: center; padding: 10px 0; border-bottom: 1px solid #f0f0f0; }
-.addon-item:last-child { border-bottom: none; }
+.addon-panel { background: #fafaf7; border-radius: 0 0 10px 10px; padding: 8px 12px; margin-top: -1px; margin-bottom: 4px; border-top: 1px dashed #e0e0d8; }
+.addon-panel-title { font-size: 11px; color: #999; margin-bottom: 6px; font-weight: 500; }
+.addon-item { display: flex; align-items: center; padding: 6px 0; }
 .addon-info { flex: 1; }
-.addon-name { font-size: 14px; font-weight: 500; }
-.addon-price { font-size: 12px; color: #BA7517; font-weight: 600; margin-top: 1px; }
+.addon-name { font-size: 13px; font-weight: 500; color: #555; }
+.addon-price { font-size: 11px; color: #BA7517; font-weight: 600; }
+.addon-qty-control { display: flex; align-items: center; }
+.addon-qty-btn { width: 28px; height: 28px; border: 1px solid #ddd; background: #fff; font-size: 15px; cursor: pointer; display: flex; align-items: center; justify-content: center; color: #555; user-select: none; }
+.addon-qty-btn:first-child { border-radius: 6px 0 0 6px; }
+.addon-qty-btn:last-child { border-radius: 0 6px 6px 0; }
+.addon-qty-btn:active { background: #f0f0f0; }
+.addon-qty-btn.disabled { opacity: 0.3; pointer-events: none; }
+.addon-qty-display { width: 30px; height: 28px; border-top: 1px solid #ddd; border-bottom: 1px solid #ddd; display: flex; align-items: center; justify-content: center; font-size: 13px; font-weight: 600; background: #fff; }
 .qty-display { width: 40px; height: 36px; border-top: 1.5px solid #ddd; border-bottom: 1.5px solid #ddd; display: flex; align-items: center; justify-content: center; font-size: 16px; font-weight: 600; background: #fafafa; }
 .note-input { width: 100%; padding: 12px; border: 1.5px solid #ddd; border-radius: 10px; font-size: 14px; outline: none; resize: none; height: 60px; }
 .note-input:focus { border-color: #1D9E75; }
@@ -124,12 +132,6 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; b
     <div id="menu-list"></div>
   </div>
 
-  <div class="section">
-    <div class="section-title">加購</div>
-    <div style="font-size:12px;color:#999;margin-bottom:10px;">訂多個便當時，請在備註說明加購要加在哪個便當</div>
-    <div id="addon-list"></div>
-  </div>
-
   <div class="section" style="padding: 12px 16px; display: flex; align-items: center; gap: 8px;">
     <div class="section-title" style="margin-bottom: 0;">付款方式</div>
     <span style="font-size: 14px; color: #0F6E56; font-weight: 600;">現金</span>
@@ -187,14 +189,20 @@ var CONFIG = {
     { name: '舒肥雞蝦餐', price: 160, img: 'img/sous-vide-shrimp.jpg' }
   ],
   addons: [
+    { name: '加雞腿', price: 60 },
+    { name: '加打拋豬', price: 50 },
+    { name: '加舒肥雞', price: 50 },
+    { name: '加鐵路', price: 50 },
+    { name: '加蝦', price: 60 },
     { name: '加飯', price: 20 },
-    { name: '荷包蛋', price: 20 }
+    { name: '加荷包蛋', price: 20 }
   ]
 };
 // ============================================================
 
 var quantities = new Array(CONFIG.menu.length).fill(0);
-var addonQuantities = new Array(CONFIG.addons.length).fill(0);
+var addonQuantities = [];
+for (var _i = 0; _i < CONFIG.menu.length; _i++) { addonQuantities.push(new Array(CONFIG.addons.length).fill(0)); }
 var selectedDate = '';
 var soldoutItems = {};
 
@@ -341,6 +349,7 @@ function renderMenu() {
     var imgHtml = item.img ? '<img class="item-img" src="' + item.img + '" alt="' + item.name + '" onerror="this.style.display=\'none\'" />' : '';
     if (isSoldout) {
       if (quantities[i] > 0) quantities[i] = 0;
+      for (var ai = 0; ai < CONFIG.addons.length; ai++) addonQuantities[i][ai] = 0;
       html += '<div class="menu-item is-soldout">' +
         imgHtml +
         '<div class="item-info"><div class="item-name">' + item.name + '</div>' +
@@ -356,38 +365,38 @@ function renderMenu() {
           '<div class="qty-display" id="qty-' + i + '">' + quantities[i] + '</div>' +
           '<div class="qty-btn" onclick="changeQty(' + i + ',1)">+</div>' +
         '</div></div>';
+      if (quantities[i] > 0) {
+        html += '<div class="addon-panel" id="addon-panel-' + i + '">';
+        html += '<div class="addon-panel-title">加購（' + item.name + '）</div>';
+        for (var a = 0; a < CONFIG.addons.length; a++) {
+          var ad = CONFIG.addons[a];
+          var aq = addonQuantities[i][a];
+          html += '<div class="addon-item">' +
+            '<div class="addon-info"><div class="addon-name">' + ad.name + '</div>' +
+            '<div class="addon-price">+$' + ad.price + '</div></div>' +
+            '<div class="addon-qty-control">' +
+              '<div class="addon-qty-btn' + (aq===0?' disabled':'') + '" onclick="changeAddon(' + i + ',' + a + ',-1)">−</div>' +
+              '<div class="addon-qty-display" id="aq-' + i + '-' + a + '">' + aq + '</div>' +
+              '<div class="addon-qty-btn" onclick="changeAddon(' + i + ',' + a + ',1)">+</div>' +
+            '</div></div>';
+        }
+        html += '</div>';
+      }
     }
   }
   el.innerHTML = html;
-  renderAddons();
   updateTotal();
 }
 
-function renderAddons() {
-  var el = document.getElementById('addon-list');
-  var html = '';
-  for (var i = 0; i < CONFIG.addons.length; i++) {
-    var addon = CONFIG.addons[i];
-    html += '<div class="addon-item">' +
-      '<div class="addon-info"><div class="addon-name">' + addon.name + '</div>' +
-      '<div class="addon-price">+$' + addon.price + '</div></div>' +
-      '<div class="qty-control">' +
-        '<div class="qty-btn' + (addonQuantities[i]===0?' disabled':'') + '" onclick="changeAddon(' + i + ',-1)">−</div>' +
-        '<div class="qty-display" id="addon-qty-' + i + '">' + addonQuantities[i] + '</div>' +
-        '<div class="qty-btn" onclick="changeAddon(' + i + ',1)">+</div>' +
-      '</div></div>';
-  }
-  el.innerHTML = html;
-}
-
-function changeAddon(idx, delta) {
-  addonQuantities[idx] = Math.max(0, addonQuantities[idx] + delta);
-  var qtyEl = document.getElementById('addon-qty-' + idx);
-  if (qtyEl) qtyEl.textContent = addonQuantities[idx];
-  var items = document.querySelectorAll('.addon-item');
-  var minusBtn = items[idx] && items[idx].querySelector('.qty-btn');
+function changeAddon(menuIdx, addonIdx, delta) {
+  addonQuantities[menuIdx][addonIdx] = Math.max(0, addonQuantities[menuIdx][addonIdx] + delta);
+  var aq = addonQuantities[menuIdx][addonIdx];
+  var qtyEl = document.getElementById('aq-' + menuIdx + '-' + addonIdx);
+  if (qtyEl) qtyEl.textContent = aq;
+  var panels = document.querySelectorAll('#addon-panel-' + menuIdx + ' .addon-item');
+  var minusBtn = panels[addonIdx] && panels[addonIdx].querySelector('.addon-qty-btn');
   if (minusBtn) {
-    if (addonQuantities[idx] === 0) minusBtn.classList.add('disabled');
+    if (aq === 0) minusBtn.classList.add('disabled');
     else minusBtn.classList.remove('disabled');
   }
   updateTotal();
@@ -395,11 +404,26 @@ function changeAddon(idx, delta) {
 
 function changeQty(idx, delta) {
   if (soldoutItems[CONFIG.menu[idx].name]) return;
+  var oldQty = quantities[idx];
   quantities[idx] = Math.max(0, quantities[idx] + delta);
+  var newQty = quantities[idx];
+  if (newQty === 0) {
+    for (var a = 0; a < CONFIG.addons.length; a++) addonQuantities[idx][a] = 0;
+  }
+  if ((oldQty === 0 && newQty > 0) || (oldQty > 0 && newQty === 0)) {
+    renderMenu();
+    return;
+  }
   var qtyEl = document.getElementById('qty-' + idx);
   if (qtyEl) qtyEl.textContent = quantities[idx];
-  var btns = document.querySelectorAll('.menu-item');
-  var minusBtn = btns[idx] && btns[idx].querySelector('.qty-btn');
+  var menuItems = document.querySelectorAll('.menu-item:not(.is-soldout)');
+  var realIdx = 0;
+  for (var mi = 0; mi < CONFIG.menu.length; mi++) {
+    if (soldoutItems[CONFIG.menu[mi].name]) continue;
+    if (mi === idx) break;
+    realIdx++;
+  }
+  var minusBtn = menuItems[realIdx] && menuItems[realIdx].querySelector('.qty-btn');
   if (minusBtn) {
     if (quantities[idx] === 0) minusBtn.classList.add('disabled');
     else minusBtn.classList.remove('disabled');
@@ -412,9 +436,9 @@ function updateTotal() {
   for (var i = 0; i < CONFIG.menu.length; i++) {
     total += CONFIG.menu[i].price * quantities[i];
     if (quantities[i] > 0) hasItems = true;
-  }
-  for (var j = 0; j < CONFIG.addons.length; j++) {
-    total += CONFIG.addons[j].price * addonQuantities[j];
+    for (var a = 0; a < CONFIG.addons.length; a++) {
+      total += CONFIG.addons[a].price * addonQuantities[i][a];
+    }
   }
   document.getElementById('total-display').textContent = '$' + total.toLocaleString();
   document.getElementById('submit-btn').disabled = !hasItems;
@@ -442,15 +466,16 @@ function submitOrder() {
     if (quantities[i] > 0) {
       items.push({ name: CONFIG.menu[i].name, qty: quantities[i], subtotal: CONFIG.menu[i].price * quantities[i] });
       total += CONFIG.menu[i].price * quantities[i];
+      for (var a = 0; a < CONFIG.addons.length; a++) {
+        if (addonQuantities[i][a] > 0) {
+          var addonLabel = CONFIG.addons[a].name + '(' + CONFIG.menu[i].name + ')';
+          items.push({ name: addonLabel, qty: addonQuantities[i][a], subtotal: CONFIG.addons[a].price * addonQuantities[i][a] });
+          total += CONFIG.addons[a].price * addonQuantities[i][a];
+        }
+      }
     }
   }
   if (items.length === 0) { alert('請至少選一個便當'); return; }
-  for (var j = 0; j < CONFIG.addons.length; j++) {
-    if (addonQuantities[j] > 0) {
-      items.push({ name: CONFIG.addons[j].name, qty: addonQuantities[j], subtotal: CONFIG.addons[j].price * addonQuantities[j] });
-      total += CONFIG.addons[j].price * addonQuantities[j];
-    }
-  }
   var note = document.getElementById('note').value.trim();
   var order = {
     location: location, floor: floor, store: store,
@@ -493,7 +518,8 @@ function showSuccess(order) {
 
 function resetForm() {
   quantities = new Array(CONFIG.menu.length).fill(0);
-  addonQuantities = new Array(CONFIG.addons.length).fill(0);
+  addonQuantities = [];
+  for (var ri = 0; ri < CONFIG.menu.length; ri++) { addonQuantities.push(new Array(CONFIG.addons.length).fill(0)); }
   document.getElementById('cust-location').value = '';
   document.getElementById('cust-floor').innerHTML = '<option value="">選擇樓層</option>';
   document.getElementById('cust-store').value = '';
