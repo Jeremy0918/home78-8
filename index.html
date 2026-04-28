@@ -15,8 +15,8 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; b
 .menu-banner img { width: 100%; display: block; }
 .menu-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.85); z-index: 200; align-items: center; justify-content: center; cursor: pointer; }
 .menu-overlay img { max-width: 95%; max-height: 90vh; object-fit: contain; border-radius: 8px; }
-.info-tags { display: flex; flex-wrap: wrap; gap: 6px; padding: 12px 16px; justify-content: center; }
-.info-tag { font-size: 12px; padding: 4px 10px; border-radius: 20px; background: #fff; color: #555; border: 1px solid #e0e0e0; }
+.info-tags { display: flex; flex-wrap: nowrap; gap: 4px; padding: 10px 12px; justify-content: center; }
+.info-tag { font-size: 10px; padding: 3px 7px; border-radius: 20px; background: #fff; color: #555; border: 1px solid #e0e0e0; white-space: nowrap; }
 .closed-note { text-align: center; padding: 6px; font-size: 12px; color: #999; background: #fafafa; }
 .container { max-width: 480px; margin: 0 auto; padding: 16px; }
 .section { background: #fff; border-radius: 12px; padding: 16px; margin-bottom: 12px; }
@@ -27,8 +27,9 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; b
 .form-row:last-child { margin-bottom: 0; }
 .form-select { width: 100%; padding: 12px; border: 1.5px solid #ddd; border-radius: 10px; font-size: 16px; outline: none; transition: border-color 0.2s; background: #fff; -webkit-appearance: none; appearance: none; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath d='M2 4l4 4 4-4' fill='none' stroke='%23888' stroke-width='1.5'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 12px center; }
 .form-select:focus { border-color: #1D9E75; }
-.menu-item { display: flex; align-items: center; padding: 12px 0; border-bottom: 1px solid #f0f0f0; }
+.menu-item { display: flex; align-items: center; padding: 12px 0; border-bottom: 1px solid #f0f0f0; gap: 12px; }
 .menu-item:last-child { border-bottom: none; }
+.item-img { width: 56px; height: 56px; border-radius: 10px; object-fit: cover; flex-shrink: 0; background: #f0f0f0; }
 .item-info { flex: 1; }
 .item-name { font-size: 15px; font-weight: 500; }
 .item-price { font-size: 13px; color: #1D9E75; font-weight: 600; margin-top: 2px; }
@@ -178,13 +179,16 @@ var CONFIG = {
   openHour: 19,   // 晚上 7 點開放隔天訂購
   cutoffHour: 16, // 下午 4 點截止當天訂單
   restDays: [1, 2], // 店休日（0=日,1=一,2=二,...6=六）
+  // ★ 圖片檔名：把對應的照片上傳到 GitHub 同一個資料夾即可
+  //   支援 jpg / png / webp，建議每張壓縮到 500KB 以下
+  //   如果沒有圖片，留空字串 '' 就不會顯示
   menu: [
-    { name: '滷雞腿', price: 110 },
-    { name: '打拋豬', price: 100 },
-    { name: '鐵路便當', price: 100 },
-    { name: '素食', price: 100 },
-    { name: '舒肥雞', price: 100 },
-    { name: '舒肥雞蝦餐', price: 160 }
+    { name: '滷雞腿', price: 110, img: 'img/chicken-leg.jpg' },
+    { name: '打拋豬', price: 100, img: 'img/pad-kra-pao.jpg' },
+    { name: '鐵路便當', price: 100, img: 'img/railway.jpg' },
+    { name: '素食', price: 100, img: 'img/veggie.jpg' },
+    { name: '舒肥雞', price: 100, img: 'img/sous-vide.jpg' },
+    { name: '舒肥雞蝦餐', price: 160, img: 'img/sous-vide-shrimp.jpg' }
   ]
 };
 // ============================================================
@@ -346,7 +350,9 @@ function renderMenu() {
   var html = '';
   for (var i = 0; i < CONFIG.menu.length; i++) {
     var item = CONFIG.menu[i];
+    var imgHtml = item.img ? '<img class="item-img" src="' + item.img + '" alt="' + item.name + '" onerror="this.style.display=\'none\'" />' : '';
     html += '<div class="menu-item">' +
+      imgHtml +
       '<div class="item-info"><div class="item-name">' + item.name + '</div>' +
       '<div class="item-price">$' + item.price + '</div></div>' +
       '<div class="qty-control">' +
@@ -458,23 +464,3 @@ function showSuccess(order) {
 function resetForm() {
   quantities = new Array(CONFIG.menu.length).fill(0);
   document.getElementById('cust-location').value = '';
-  document.getElementById('cust-floor').innerHTML = '<option value="">選擇樓層</option>';
-  document.getElementById('cust-store').value = '';
-  document.getElementById('floor-row').style.display = 'flex';
-  document.getElementById('store-row').style.display = 'flex';
-  document.getElementById('cust-name').value = '';
-  document.getElementById('cust-phone').value = '';
-  document.getElementById('note').value = '';
-  document.getElementById('success-overlay').style.display = 'none';
-  var btn = document.getElementById('submit-btn');
-  btn.textContent = '送出訂單';
-  btn.disabled = true;
-  renderMenu();
-}
-
-// 啟動
-renderMenu();
-checkAndRender();
-</script>
-</body>
-</html>
