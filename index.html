@@ -101,13 +101,13 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; b
       </select>
     </div>
     <div class="form-row" id="store-row">
-      <input type="text" class="name-input" id="cust-store" placeholder="櫃位 / 店家名稱" />
+      <input type="text" class="name-input" id="cust-store" placeholder="櫃位 / 店家名稱" autocomplete="off" />
     </div>
     <div class="form-row">
-      <input type="text" class="name-input" id="cust-name" placeholder="你的名字" />
+      <input type="text" class="name-input" id="cust-name" placeholder="你的名字" autocomplete="off" />
     </div>
     <div class="form-row">
-      <input type="tel" class="name-input" id="cust-phone" placeholder="手機號碼" inputmode="tel" />
+      <input type="tel" class="name-input" id="cust-phone" placeholder="手機號碼" inputmode="tel" autocomplete="off" />
     </div>
   </div>
 
@@ -328,7 +328,14 @@ function renderMenu() {
 
 function changeQty(idx, delta) {
   quantities[idx] = Math.max(0, quantities[idx] + delta);
-  renderMenu();
+  document.getElementById('qty-' + idx).textContent = quantities[idx];
+  var btns = document.querySelectorAll('.menu-item');
+  var minusBtn = btns[idx] && btns[idx].querySelector('.qty-btn');
+  if (minusBtn) {
+    if (quantities[idx] === 0) minusBtn.classList.add('disabled');
+    else minusBtn.classList.remove('disabled');
+  }
+  updateTotal();
 }
 
 function updateTotal() {
