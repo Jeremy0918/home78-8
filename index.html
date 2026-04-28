@@ -368,6 +368,9 @@ function renderMenu() {
       if (quantities[i] > 0) {
         html += '<div class="addon-panel" id="addon-panel-' + i + '">';
         html += '<div class="addon-panel-title">加購（' + item.name + '）</div>';
+        if (quantities[i] > 1) {
+          html += '<div style="font-size:11px;color:#c44;background:#FFF3CD;padding:6px 10px;border-radius:6px;margin-bottom:6px;">點了 ' + quantities[i] + ' 個' + item.name + '，如有加購請在下方備註說明哪個要加</div>';
+        }
         for (var a = 0; a < CONFIG.addons.length; a++) {
           var ad = CONFIG.addons[a];
           var aq = addonQuantities[i][a];
