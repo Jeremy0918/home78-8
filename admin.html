@@ -1094,4 +1094,43 @@ function renderChart() {
   document.getElementById('chart-area').innerHTML = html;
 }
 
-// ====== 啟動（一次 API 拿排程 + 訂單）===
+// ====== 啟動（一次 API 拿排程 + 訂單）======
+
+function loadAll() {
+  if (CONFIG.apiUrl === 'DEMO_MODE') {
+    renderScheduleControl();
+    useDemoData();
+    return;
+  }
+
+  fetch(CONFIG.apiUrl + '?action=getAll&days=35')
+    .then(function(r) { return r.json(); })
+    .then(function(data) {
+      // 排程
+      closedDates = {};
+      var list = data.schedule || [];
+      for (var i = 0; i < list.length; i++) {
+        var d = normDate(list[i].date);
+        if (d && list[i].status === '關閉') {
+          closedDates[d] = true;
+        }
+      }
+      renderScheduleControl();
+
+      // 訂單
+      rawOrders = data.orders || [];
+      processOrders(rawOrders);
+      renderChart();
+    })
+    .catch(function(err) {
+      console.error('[admin] loadAll 失敗:', err);
+      renderScheduleControl();
+      document.getElementById('order-list').innerHTML = '<div class="empty">載入失敗，請點重新整理</div>';
+    });
+}
+
+// 啟動
+loadAll();
+</script>
+</body>
+</html>

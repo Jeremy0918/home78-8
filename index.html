@@ -10,13 +10,10 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; b
 .header { background: #fff; padding: 20px 16px 16px; text-align: center; border-bottom: 1px solid #eee; }
 .header h1 { font-size: 20px; font-weight: 600; margin-bottom: 4px; }
 .header p { font-size: 13px; color: #888; }
-.deadline-bar { background: #FFF3CD; color: #856404; text-align: center; padding: 8px; font-size: 13px; font-weight: 500; }
 .menu-banner { width: 100%; cursor: pointer; display: block; }
 .menu-banner img { width: 100%; display: block; }
 .menu-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.85); z-index: 200; align-items: center; justify-content: center; cursor: pointer; }
 .menu-overlay img { max-width: 95%; max-height: 90vh; object-fit: contain; border-radius: 8px; }
-.info-tags { display: flex; flex-wrap: nowrap; gap: 4px; padding: 10px 12px; justify-content: center; }
-.info-tag { font-size: 10px; padding: 3px 7px; border-radius: 20px; background: #fff; color: #555; border: 1px solid #e0e0e0; white-space: nowrap; }
 .closed-note { text-align: center; padding: 6px; font-size: 12px; color: #999; background: #fafafa; }
 .container { max-width: 480px; margin: 0 auto; padding: 16px; }
 .section { background: #fff; border-radius: 12px; padding: 16px; margin-bottom: 12px; }
@@ -55,7 +52,6 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; b
 .success-card p { font-size: 14px; color: #888; margin-bottom: 16px; }
 .success-card button { padding: 12px 24px; background: #1D9E75; color: #fff; border: none; border-radius: 10px; font-size: 15px; cursor: pointer; }
 .loading { pointer-events: none; opacity: 0.6; }
-/* 休息中遮罩 */
 .closed-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 100; align-items: center; justify-content: center; }
 .closed-card { background: #fff; border-radius: 16px; padding: 32px; text-align: center; margin: 16px; max-width: 320px; }
 .closed-card .icon { font-size: 48px; margin-bottom: 12px; }
@@ -80,7 +76,6 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; b
 <div class="closed-note">每天晚上 7 點開放隔天訂購，週一週二店休</div>
 
 <div class="container">
-  <!-- 取餐日期 -->
   <div class="section">
     <div class="section-title">選擇取餐日期</div>
     <div class="form-row">
@@ -151,7 +146,6 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; b
   </div>
 </div>
 
-<!-- 目前沒開放時顯示 -->
 <div class="closed-overlay" id="closed-overlay">
   <div class="closed-card">
     <div class="icon">&#128564;</div>
@@ -167,13 +161,9 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; b
 var CONFIG = {
   shopName: 'Home78-2',
   apiUrl: 'https://script.google.com/macros/s/AKfycbx9dMjOM0Gaiokbq-GCM8wvov8nKY_B4rEcElpAH7dZlfLjjiFzVhBLtAoSEyJNLnXH/exec',
-  deadline: '下午 4 點前訂餐｜百貨送餐 5:30｜自取 5:30-7:00',
-  openHour: 19,   // 晚上 7 點開放隔天訂購
-  cutoffHour: 16, // 下午 4 點截止當天訂單
-  restDays: [1, 2], // 店休日（0=日,1=一,2=二,...6=六）
-  // ★ 圖片檔名：把對應的照片上傳到 GitHub 同一個資料夾即可
-  //   支援 jpg / png / webp，建議每張壓縮到 500KB 以下
-  //   如果沒有圖片，留空字串 '' 就不會顯示
+  openHour: 19,
+  cutoffHour: 16,
+  restDays: [1, 2],
   menu: [
     { name: '滷雞腿', price: 110, img: 'img/chicken-leg.jpg' },
     { name: '打拋豬', price: 100, img: 'img/pad-kra-pao.jpg' },
@@ -186,16 +176,13 @@ var CONFIG = {
 // ============================================================
 
 var quantities = new Array(CONFIG.menu.length).fill(0);
-var selectedDate = '';  // 取餐日期 (YYYY-MM-DD)
+var selectedDate = '';
 
-// 樓層選項（B2~14F）
 var allFloors = ['B2','B1','1F','2F','3F','4F','5F','6F','7F','8F','9F','10F','11F','12F','13F','14F'];
 var floors = {
   '新光三越台中中港店': allFloors,
   '台中大遠百': allFloors
 };
-
-// ====== 日期相關 ======
 
 function formatDate(d) {
   var y = d.getFullYear();
@@ -216,20 +203,16 @@ function normDate(val) {
   return s;
 }
 
-// 根據現在時間算出「可訂購的取餐日期」
 function getTargetDate() {
   var now = new Date();
   var hour = now.getHours();
   if (hour >= CONFIG.openHour) {
-    // 晚上 7 點後：開放隔天
     var tomorrow = new Date(now);
     tomorrow.setDate(tomorrow.getDate() + 1);
     return formatDate(tomorrow);
   } else if (hour < CONFIG.cutoffHour) {
-    // 截止前：今天仍可訂（昨晚 7 點開放的）
     return formatDate(now);
   } else {
-    // 截止～開放之間：沒有可訂的日期
     return null;
   }
 }
@@ -250,7 +233,6 @@ function checkAndRender() {
     return;
   }
 
-  // 檢查店休日
   if (isRestDay(target)) {
     var targetObj = new Date(target + 'T00:00:00');
     var dayLabel = '週' + dayNames[targetObj.getDay()];
@@ -260,13 +242,11 @@ function checkAndRender() {
     return;
   }
 
-  // Demo 模式
   if (CONFIG.apiUrl === 'DEMO_MODE') {
     showTargetDate(target);
     return;
   }
 
-  // 查 API 看這天有沒有被後台關閉
   fetch(CONFIG.apiUrl + '?action=getSchedule')
     .then(function(r) { return r.json(); })
     .then(function(data) {
@@ -287,7 +267,6 @@ function checkAndRender() {
       }
     })
     .catch(function() {
-      // API 失敗，樂觀顯示（讓客人能訂）
       showTargetDate(target);
     });
 }
@@ -296,25 +275,18 @@ function showTargetDate(dateStr) {
   var dayNames = ['日','一','二','三','四','五','六'];
   var dateObj = new Date(dateStr + 'T00:00:00');
   var label = (dateObj.getMonth() + 1) + '/' + dateObj.getDate() + '（週' + dayNames[dateObj.getDay()] + '）';
-
   selectedDate = dateStr;
-
-  // 更新下拉選單（只有一個選項）
   var sel = document.getElementById('date-select');
   sel.innerHTML = '<option value="' + dateStr + '">' + label + '</option>';
   sel.value = dateStr;
-
   document.getElementById('order-date').textContent = label + ' 取餐';
 }
-
-// ====== 樓層 ======
 
 function updateFloors() {
   var loc = document.getElementById('cust-location').value;
   var floorRow = document.getElementById('floor-row');
   var storeRow = document.getElementById('store-row');
   var floorSelect = document.getElementById('cust-floor');
-
   if (loc === '自取') {
     floorRow.style.display = 'none';
     storeRow.style.display = 'none';
@@ -332,10 +304,7 @@ function updateFloors() {
   }
 }
 
-// ====== 初始化 ======
-
 document.getElementById('shop-name').textContent = CONFIG.shopName;
-// deadline-bar 已移除
 
 function renderMenu() {
   var el = document.getElementById('menu-list');
@@ -372,11 +341,8 @@ function updateTotal() {
   document.getElementById('submit-btn').disabled = !hasItems;
 }
 
-// ====== 送出訂單 ======
-
 function submitOrder() {
   if (!selectedDate) { alert('請選擇取餐日期'); return; }
-
   var location = document.getElementById('cust-location').value;
   if (!location) { document.getElementById('cust-location').focus(); alert('請選擇取餐方式'); return; }
   var floor = '';
@@ -391,7 +357,6 @@ function submitOrder() {
   if (!name) { document.getElementById('cust-name').focus(); alert('請輸入名字'); return; }
   var phone = document.getElementById('cust-phone').value.trim();
   if (!phone) { document.getElementById('cust-phone').focus(); alert('請輸入手機號碼'); return; }
-
   var items = [];
   var total = 0;
   for (var i = 0; i < CONFIG.menu.length; i++) {
@@ -401,33 +366,21 @@ function submitOrder() {
     }
   }
   if (items.length === 0) { alert('請至少選一個便當'); return; }
-
   var note = document.getElementById('note').value.trim();
-
   var order = {
-    location: location,
-    floor: floor,
-    store: store,
-    customer: name,
-    phone: phone,
-    items: items,
-    total: total,
-    payment: 'cash',
-    note: note,
-    deliveryDate: selectedDate,
+    location: location, floor: floor, store: store,
+    customer: name, phone: phone, items: items, total: total,
+    payment: 'cash', note: note, deliveryDate: selectedDate,
     timestamp: new Date().toISOString()
   };
-
   var btn = document.getElementById('submit-btn');
   btn.textContent = '送出中...';
   btn.disabled = true;
   document.body.classList.add('loading');
-
   if (CONFIG.apiUrl === 'DEMO_MODE') {
     setTimeout(function() { showSuccess(order); }, 500);
     return;
   }
-
   var url = CONFIG.apiUrl + '?payload=' + encodeURIComponent(JSON.stringify(order));
   fetch(url)
     .then(function(r) { return r.json(); })
@@ -461,4 +414,19 @@ function resetForm() {
   document.getElementById('floor-row').style.display = 'flex';
   document.getElementById('store-row').style.display = 'flex';
   document.getElementById('cust-name').value = '';
-  document.getElementByI
+  document.getElementById('cust-phone').value = '';
+  document.getElementById('note').value = '';
+  document.getElementById('success-overlay').style.display = 'none';
+  var btn = document.getElementById('submit-btn');
+  btn.textContent = '送出訂單';
+  btn.disabled = true;
+  renderMenu();
+}
+
+// 啟動
+renderMenu();
+checkAndRender();
+</script>
+</body>
+</html>
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      
