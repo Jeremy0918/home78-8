@@ -116,6 +116,22 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; b
 .soldout-btn:active { transform:scale(0.94); }
 .soldout-btn.on-sale { background:#E1F5EE; color:#0F6E56; border-color:#1D9E75; }
 .soldout-btn.is-soldout { background:#FBEAF0; color:#c44; border-color:#c44; }
+@media print {
+  body * { visibility: hidden; }
+  #print-area, #print-area * { visibility: visible; }
+  #print-area { position: absolute; left: 0; top: 0; width: 72mm; font-family: monospace, sans-serif; font-size: 12px; line-height: 1.4; color: #000; padding: 2mm; }
+  #print-area .pr-header { text-align: center; font-size: 14px; font-weight: bold; border-bottom: 1px dashed #000; padding-bottom: 4px; margin-bottom: 4px; }
+  #print-area .pr-date { text-align: center; font-size: 11px; margin-bottom: 6px; }
+  #print-area .pr-loc { font-weight: bold; font-size: 13px; border-bottom: 1px solid #000; margin-top: 6px; padding-bottom: 2px; }
+  #print-area .pr-order { border-bottom: 1px dashed #ccc; padding: 4px 0; }
+  #print-area .pr-name { font-weight: bold; font-size: 12px; }
+  #print-area .pr-items { font-size: 11px; }
+  #print-area .pr-note { font-size: 11px; color: #000; }
+  #print-area .pr-total-line { font-weight: bold; margin-top: 2px; }
+  #print-area .pr-footer { border-top: 1px dashed #000; margin-top: 6px; padding-top: 4px; text-align: center; font-size: 11px; }
+  #print-area .pr-summary { border-top: 1px dashed #000; margin-top: 6px; padding-top: 4px; }
+  @page { margin: 0; size: 80mm auto; }
+}
 </style>
 </head>
 <body>
@@ -156,7 +172,7 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; b
     <div id="item-summary"></div>
   </div>
   <div class="section">
-    <div class="section-title"><span>訂單明細（<span id="order-count">0</span> 筆）</span><button class="copy-btn" onclick="copyOrderList()">複製文字</button></div>
+    <div class="section-title"><span>訂單明細（<span id="order-count">0</span> 筆）</span><div style="display:flex;gap:6px;"><button class="copy-btn" onclick="printOrders()">列印出單</button><button class="copy-btn" onclick="copyOrderList()">複製文字</button></div></div>
     <div id="order-list"></div>
   </div>
   <div class="section">
@@ -180,6 +196,7 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; b
     </div>
   </div>
 </div>
+<div id="print-area"></div>
 <div class="modal-overlay" id="edit-modal" style="display:none;" onclick="if(event.target===this)closeEditModal()">
   <div class="modal">
     <h2 id="edit-modal-title">編輯訂單</h2>
@@ -222,7 +239,8 @@ function copyText(text){if(navigator.clipboard&&navigator.clipboard.writeText){n
 function fallbackCopy(text){var ta=document.createElement('textarea');ta.value=text;ta.style.cssText='position:fixed;left:-9999px;top:0;opacity:0;';document.body.appendChild(ta);ta.focus();ta.select();try{document.execCommand('copy');showToast('已複製！可以貼到 LINE');}catch(e){showToast('複製失敗，請手動選取');}document.body.removeChild(ta);}
 function showToast(msg){var existing=document.getElementById('toast-msg');if(existing)existing.remove();var el=document.createElement('div');el.id='toast-msg';el.textContent=msg;el.style.cssText='position:fixed;bottom:80px;left:50%;transform:translateX(-50%);background:#333;color:#fff;padding:10px 20px;border-radius:20px;font-size:14px;z-index:9999;white-space:nowrap;';document.body.appendChild(el);setTimeout(function(){el.remove();},2000);}
 function copyItemSummary(){var el=document.getElementById('item-summary');var rows=el.querySelectorAll('.item-row');var dateLabel=selectedViewDate?getDateLabel(selectedViewDate)+' ':'';var text='【'+dateLabel+'便當統計】\n';for(var i=0;i<rows.length;i++){text+=rows[i].querySelector('.item-name').textContent+'：'+rows[i].querySelector('.item-qty').textContent.trim()+'\n';}text+='合計：'+document.getElementById('total-qty').textContent+' 個';copyText(text);}
-function copyOrderList(){var dateLabel=selectedViewDate?getDateLabel(selectedViewDate)+' ':'';var text='【'+dateLabel+'訂單明細】\n';var curLoc='';for(var i=0;i<allOrders.length;i++){var o=allOrders[i];if(o.location&&o.location!==curLoc){curLoc=o.location;text+='\n▎'+curLoc+'\n';}var items=o.items.map(function(it){return it.name+'x'+it.qty;}).join('、');var pay=(o.payment==='已收款')?'已付':'未付';text+=(o.floor?o.floor+' ':'')+(o.store?o.store+' ':'')+o.name+'：'+items+' $'+o.total+'（'+pay+'）'+(o.note?' '+o.note:'')+'\n';}text+='\n總計：'+document.getElementById('total-amount').textContent;copyText(text);}
+function copyOrderList(){var dateLabel=selectedViewDate?getDateLabel(selectedViewDate)+' ':'';var text='【'+dateLabel+'訂單明細】\n';var curLoc='';for(var i=0;i<allOrders.length;i++){var o=allOrders[i];if(o.location&&o.location!==curLoc){curLoc=o.location;text+='\n▎'+curLoc+'\n';}var items=o.items.map(function(it){return it.name+'x'+it.qty;}).join('、');var pay=(o.payment==='已收款')?'已付':'未付';text+=(o.floor?o.floor+' ':'')+(o.store?o.store+' ':'')+o.name+'：'+items+' $'+o.total+'（'+pay+'）'+(o.note?' 備註：'+o.note:'')+'\n';}text+='\n總計：'+document.getElementById('total-amount').textContent;copyText(text);}
+function printOrders(){var dateLabel=selectedViewDate?getDateLabel(selectedViewDate):'全部';var now=new Date();var timeStr=now.getHours()+':'+('0'+now.getMinutes()).slice(-2);var html='<div class="pr-header">Home 78-2 便當</div>';html+='<div class="pr-date">'+dateLabel+' 出單 '+timeStr+'</div>';var curLoc='';var totalAmt=0;var totalQty=0;for(var i=0;i<allOrders.length;i++){var o=allOrders[i];if(o.location&&o.location!==curLoc){curLoc=o.location;html+='<div class="pr-loc">'+curLoc+'</div>';}html+='<div class="pr-order">';html+='<div class="pr-name">'+(o.floor?o.floor+' ':'')+(o.store?o.store+' ':'')+o.name+(o.phone?' '+o.phone:'')+'</div>';var itemLines=o.items.map(function(it){return '  '+it.name+' x'+it.qty;});html+='<div class="pr-items">'+itemLines.join('<br>')+'</div>';if(o.note)html+='<div class="pr-note">※備註：'+o.note+'</div>';var pay=(o.payment==='已收款')?'已付':'未付';html+='<div class="pr-total-line">$'+o.total.toLocaleString()+' ('+pay+')</div>';html+='</div>';totalAmt+=o.total;for(var j=0;j<o.items.length;j++)totalQty+=Number(o.items[j].qty)||0;}html+='<div class="pr-summary">';html+='共 '+allOrders.length+' 筆 / '+totalQty+' 個<br>';html+='總計 $'+totalAmt.toLocaleString()+'</div>';html+='<div class="pr-footer">列印時間 '+now.toLocaleString('zh-TW')+'</div>';document.getElementById('print-area').innerHTML=html;setTimeout(function(){window.print();},200);}
 function togglePayment(idx){var ord=allOrders[idx];if(!ord)return;var newPay=(ord.payment==='已收款')?'現金':'已收款';ord.payment=newPay;var dd=normDate(ord.deliveryDate);sendToAPI({action:'updatePayment',customer:ord.name,payment:newPay,deliveryDate:dd},function(res){if(!res||!res.success)alert('付款狀態更新失敗，請重試');});reRender();}
 function reRender(){var totalAmt=0,paidAmt=0,unpaidAmt=0,totalQty=0;for(var i=0;i<allOrders.length;i++){var o=allOrders[i];totalAmt+=o.total;for(var j=0;j<o.items.length;j++)totalQty+=Number(o.items[j].qty)||0;if(o.payment==='已收款')paidAmt+=o.total;else unpaidAmt+=o.total;}document.getElementById('total-qty').textContent=totalQty;document.getElementById('total-amount').textContent='$'+totalAmt.toLocaleString();document.getElementById('total-unpaid').textContent='$'+unpaidAmt.toLocaleString();document.getElementById('pay-summary-section').innerHTML='<div class="pay-summary"><div class="pay-box paid"><div class="label">已付款</div><div class="amount">$'+paidAmt.toLocaleString()+'</div></div><div class="pay-box unpaid"><div class="label">未付款</div><div class="amount">$'+unpaidAmt.toLocaleString()+'</div></div></div>';renderOrderList();}
 var editingIdx=-1,editItems=[];
