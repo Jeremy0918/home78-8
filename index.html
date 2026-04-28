@@ -289,6 +289,7 @@ function showTargetDate(dateStr) {
   sel.innerHTML = '<option value="' + dateStr + '">' + label + '</option>';
   sel.value = dateStr;
   document.getElementById('order-date').textContent = label + ' 取餐';
+  renderMenu();
 }
 
 function updateFloors() {
@@ -451,8 +452,8 @@ function resetForm() {
   renderMenu();
 }
 
-// 啟動
-renderMenu();
+// 啟動 — 先顯示載入中，等排程抓完再渲染菜單
+document.getElementById('menu-list').innerHTML = '<div style="text-align:center;padding:20px;color:#aaa;font-size:14px;">載入菜單中...</div>';
 checkAndRender();
 </script>
 </body>
