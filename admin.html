@@ -824,7 +824,23 @@ function saveOrder() {
   ord.items = validItems;
   ord.total = newTotal;
 
+  // 同步更新 rawOrders（讓營業額圖表也更新）
+  var dd = normDate(ord.deliveryDate);
+  rawOrders = rawOrders.filter(function(r) {
+    return !(String(r.customer) === String(oldCustomer) && normDate(r.deliveryDate) === dd);
+  });
+  // 把新的品項加回 rawOrders
+  for (var vi = 0; vi < validItems.length; vi++) {
+    rawOrders.push({
+      customer: newName, item: validItems[vi].name, qty: validItems[vi].qty,
+      subtotal: validItems[vi].subtotal, total: vi === 0 ? newTotal : '',
+      deliveryDate: dd, location: payload.location, floor: payload.floor,
+      store: payload.store, phone: payload.phone, payment: ord.payment, note: payload.note
+    });
+  }
+
   reRender();
+  renderChart();
   closeEditModal();
 
   sendToAPI(payload);
@@ -842,10 +858,17 @@ function doDeleteOrder(idx) {
   var ord = allOrders[idx];
   if (!ord) return;
 
-  sendToAPI({ action: 'deleteOrder', customer: ord.name, deliveryDate: ord.deliveryDate });
+  var dd = normDate(ord.deliveryDate);
+  sendToAPI({ action: 'deleteOrder', customer: String(ord.name), deliveryDate: dd });
+
+  // 同步刪除 rawOrders 中同客戶同日期的資料（讓營業額圖表也更新）
+  rawOrders = rawOrders.filter(function(r) {
+    return !(String(r.customer) === String(ord.name) && normDate(r.deliveryDate) === dd);
+  });
 
   allOrders.splice(idx, 1);
   reRender();
+  renderChart();
 }
 
 // ====== 自訂確認對話框 ======
@@ -1071,44 +1094,4 @@ function renderChart() {
   document.getElementById('chart-area').innerHTML = html;
 }
 
-// ====== 啟動（一次 API 拿排程 + 訂單）======
-(function boot() {
-  if (CONFIG.apiUrl === 'DEMO_MODE') {
-    closedDates = {};
-    renderScheduleControl();
-    selectedViewDate = '';
-    renderDateTabs();
-    useDemoData();
-    return;
-  }
-
-  fetch(CONFIG.apiUrl + '?action=getAll&days=35')
-    .then(function(r) { return r.json(); })
-    .then(function(data) {
-      // 排程
-      closedDates = {};
-      var list = data.schedule || [];
-      for (var i = 0; i < list.length; i++) {
-        var d = normDate(list[i].date);
-        if (d && list[i].status === '關閉') closedDates[d] = true;
-      }
-      renderScheduleControl();
-
-      // 訂單
-      selectedViewDate = '';
-      renderDateTabs();
-      rawOrders = data.orders || [];
-      processOrders(rawOrders);
-      renderChart();
-    })
-    .catch(function(err) {
-      console.error('[admin] boot 失敗:', err);
-      closedDates = {};
-      renderScheduleControl();
-      selectedViewDate = '';
-      renderDateTabs();
-    });
-})();
-</script>
-</body>
-</html>
+// ====== 啟動（一次 API 拿排程 + 訂單）===
